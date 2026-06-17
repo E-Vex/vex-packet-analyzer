@@ -84,7 +84,7 @@ void print_list(int_Node *headRef)
 
 FILE *import_file(char filename[15])
 {
-    FILE *filePointer = fopen(filename, "r");
+    FILE *filePointer = fopen(filename, "rb");
     if (filePointer == NULL)
     {
         printf("Failed to open the file <NULL>\n");
