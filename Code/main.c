@@ -9,7 +9,7 @@ typedef struct __attribute__((packed))
     uint16_t minor_version;
     uint32_t this_zone;
     uint32_t sigfigs;
-    uint32_t saplen;
+    uint32_t snaplen;
     uint32_t network;
 
 } pcap_global_header_t;
@@ -23,5 +23,8 @@ int main()
 
     FILE *filePointer = import_file(name);
     fread(&packet, sizeof(pcap_global_header_t), 1, filePointer);
+    printf("Magic Number : 0x%X\n", packet.magic_number);
+    printf("Snaplen : 0x%X\n", packet.snaplen);
+    printf("Network : 0x%X\n", packet.network);
     fclose(filePointer);
 }
