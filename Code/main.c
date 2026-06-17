@@ -17,10 +17,11 @@ typedef struct __attribute__((packed))
 int main()
 {
     char *name = get_file_name();
+    pcap_global_header_t packet;
 
     int_Node *head = NULL;
 
     FILE *filePointer = import_file(name);
-    read_file(filePointer, &head);
+    fread(&packet, sizeof(pcap_global_header_t), 1, filePointer);
     fclose(filePointer);
 }
