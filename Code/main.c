@@ -41,11 +41,16 @@ void revers_magic_number(uint32_t *M)
          (byte1);
 }
 
-void check_magic_number(uint32_t *M)
+int check_magic_number(uint32_t *M)
 {
-    if (*M == 0xd4c3b2a1)
+    if (*M == 0x1a2b3c4d)
+    {
+        return 0;
+    }
+    else if (*M == 0xd4c3b2a1)
     {
         revers_magic_number(M);
+        return 1;
     }
     else
     {
