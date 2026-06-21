@@ -2,8 +2,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "file.h"
-
-typedef struct __attribute__((packed))
+/*--------------------------Structures-------------------------------*/
+typedef struct __attribute__((packed)) // Global Header
 {
     uint32_t magic_number;
     uint16_t major_version;
@@ -14,15 +14,16 @@ typedef struct __attribute__((packed))
     uint32_t network;
 
 } pcap_global_header_t;
-
-typedef struct __attribute__((packed))
+typedef struct __attribute__((packed)) // Packet Header
 {
     uint32_t ts_sec;
     uint32_t ts_usec;
     uint32_t incl_len;
     uint32_t orig_len;
 } pcap_packet_header_t;
+/*--------------------------Structures-------------------------------*/
 
+/*--------------------------Functions-------------------------------*/
 void revers_magic_number(uint32_t *M)
 {
     uint8_t byte1;
@@ -40,7 +41,6 @@ void revers_magic_number(uint32_t *M)
          (byte2 << 8) |
          (byte1);
 }
-
 int check_magic_number(uint32_t *M)
 {
     if (*M == 0x1a2b3c4d)
@@ -58,6 +58,7 @@ int check_magic_number(uint32_t *M)
         exit(1);
     }
 }
+/*--------------------------Functions-------------------------------*/
 
 int main()
 {
@@ -74,9 +75,6 @@ int main()
         exit(1);
         return 0;
     }
-
-    // long pos = ftell(filePointer);
-    // printf("\n------>Position in file = %ld\n\n", pos);
 
     fread(&global_header, sizeof(pcap_global_header_t), 1, filePointer);
     check_magic_number(&(global_header.magic_number));
@@ -99,3 +97,9 @@ int main()
     fclose(filePointer);
     return 0;
 }
+
+//
+//
+/*------------------Print the position in the file------------------*/
+// long pos = ftell(filePointer);
+// printf("\n------>Position in file = %ld\n\n", pos);
