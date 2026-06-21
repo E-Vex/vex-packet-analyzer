@@ -24,14 +24,13 @@ typedef struct __attribute__((packed)) // Packet Header
 /*--------------------------Structures-------------------------------*/
 
 /*--------------------------Functions-------------------------------*/
-int check_file_pointer(FILE *fp)
+void check_file_pointer(FILE *fp)
 {
     if (fp == NULL)
     {
         printf("Error: failed to open the file\n");
         exit(1);
     }
-    return 0;
 }
 void revers_magic_number(uint32_t *M)
 {
@@ -67,8 +66,9 @@ int check_magic_number(uint32_t *M)
         exit(1);
     }
 }
-void read_packet_header(pcap_packet_header_t packet_header, FILE *fp)
+void read_packet_header(FILE *fp)
 {
+    pcap_packet_header_t packet_header;
     unsigned int i = 0;
     while (fread(&packet_header, sizeof(pcap_packet_header_t), 1, fp) != 0)
     {
@@ -99,7 +99,7 @@ int main()
     printf("Snaplen : 0x%X\n", global_header.snaplen);
     printf("Network : 0x%X\n", global_header.network);
 
-    read_packet_header(packet_header, filePointer);
+    read_packet_header(filePointer);
 
     fclose(filePointer);
     return 0;
