@@ -29,7 +29,6 @@ int check_file_pointer(FILE *fp)
     if (fp == NULL)
     {
         printf("Error: failed to open the file\n");
-        return 1;
         exit(1);
     }
     return 0;
