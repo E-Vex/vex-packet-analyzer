@@ -24,6 +24,16 @@ typedef struct __attribute__((packed)) // Packet Header
 /*--------------------------Structures-------------------------------*/
 
 /*--------------------------Functions-------------------------------*/
+int check_file_pointer(FILE *fp)
+{
+    if (fp == NULL)
+    {
+        printf("Error: failed to open the file\n");
+        return 1;
+        exit(1);
+    }
+    return 0;
+}
 void revers_magic_number(uint32_t *M)
 {
     uint8_t byte1;
@@ -58,23 +68,30 @@ int check_magic_number(uint32_t *M)
         exit(1);
     }
 }
+void read_packet_header(pcap_packet_header_t packet_header, FILE *fp)
+{
+    unsigned int i = 0;
+    while (fread(&packet_header, sizeof(pcap_packet_header_t), 1, fp) != 0)
+    {
+
+        printf("Packet Header : %d\n", i);
+        printf("Packet Size   : %d\n", packet_header.incl_len);
+        i++;
+
+        fseek(fp, packet_header.incl_len, SEEK_CUR);
+    }
+}
 /*--------------------------Functions-------------------------------*/
 
 int main()
 {
-
-    char *name = get_file_name();
     pcap_global_header_t global_header;
     pcap_packet_header_t packet_header;
 
-    // int_Node *head = NULL;
+    char *name = get_file_name();
 
     FILE *filePointer = import_file(name);
-    if (filePointer == NULL)
-    {
-        exit(1);
-        return 0;
-    }
+    check_file_pointer(filePointer);
 
     fread(&global_header, sizeof(pcap_global_header_t), 1, filePointer);
     check_magic_number(&(global_header.magic_number));
@@ -83,16 +100,7 @@ int main()
     printf("Snaplen : 0x%X\n", global_header.snaplen);
     printf("Network : 0x%X\n", global_header.network);
 
-    unsigned int i = 0;
-    while (fread(&packet_header, sizeof(pcap_packet_header_t), 1, filePointer) != 0)
-    {
-
-        printf("Packet Header : %d\n", i);
-        printf("Packet Size   : %d\n", packet_header.incl_len);
-        i++;
-
-        fseek(filePointer, packet_header.incl_len, SEEK_CUR);
-    }
+    read_packet_header(packet_header, filePointer);
 
     fclose(filePointer);
     return 0;
