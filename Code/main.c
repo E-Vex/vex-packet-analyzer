@@ -75,6 +75,27 @@ int check_magic_number(uint32_t *M)
         exit(1);
     }
 }
+void swap_global_header(pcap_global_header_t *global_header)
+{
+    swap_bytes(&(global_header->magic_number), sizeof(global_header->magic_number));
+    swap_bytes(&(global_header->major_version), sizeof(global_header->major_version));
+    swap_bytes(&(global_header->minor_version), sizeof(global_header->minor_version));
+    swap_bytes(&(global_header->this_zone), sizeof(global_header->this_zone));
+    swap_bytes(&(global_header->sigfigs), sizeof(global_header->sigfigs));
+    swap_bytes(&(global_header->snaplen), sizeof(global_header->snaplen));
+    swap_bytes(&(global_header->network), sizeof(global_header->network));
+}
+void print_global_header(pcap_global_header_t *global_header)
+{
+    printf("Magic Number : 0x%X\n", global_header->magic_number);
+    printf("Major Version : %d\n", global_header->major_version);
+    printf("Minor Version : %d\n", global_header->minor_version);
+    printf("This Zone : %d\n", global_header->this_zone);
+    printf("Sigfigs : %d\n", global_header->sigfigs);
+    printf("Snaplen : %d\n", global_header->snaplen);
+    printf("Network : 0x%X\n", global_header->network);
+}
+
 void read_packet_header(FILE *fp)
 {
     pcap_packet_header_t packet_header;
@@ -106,16 +127,17 @@ int main()
     int chk = check_magic_number(&(global_header.magic_number));
     if (chk == BIG)
     {
-        swap_bytes(&global_header, sizeof(pcap_global_header_t));
+        swap_global_header(&global_header);
+    }
+    else if (chk == LITTLE)
+    {
     }
     else
     {
         printf("Unexpected Endianness\n");
         exit(1);
     }
-    printf("Magic Number : 0x%X\n", global_header.magic_number);
-    printf("Snaplen : 0x%X\n", global_header.snaplen);
-    printf("Network : 0x%X\n", global_header.network);
+    print_global_header(&global_header);
 
     /* if (global_header.network == 0x114)
      {
