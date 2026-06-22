@@ -103,8 +103,16 @@ int main()
     check_file_pointer(filePointer);
 
     fread(&global_header, sizeof(pcap_global_header_t), 1, filePointer);
-    check_magic_number(&(global_header.magic_number));
-
+    int chk = check_magic_number(&(global_header.magic_number));
+    if (chk == BIG)
+    {
+        swap_bytes(&global_header, sizeof(pcap_global_header_t));
+    }
+    else
+    {
+        printf("Unexpected Endianness\n");
+        exit(1);
+    }
     printf("Magic Number : 0x%X\n", global_header.magic_number);
     printf("Snaplen : 0x%X\n", global_header.snaplen);
     printf("Network : 0x%X\n", global_header.network);
