@@ -12,7 +12,7 @@ typedef struct __attribute__((packed)) // Global Header
     uint32_t this_zone;
     uint32_t sigfigs;
     uint32_t snaplen;
-    uint32_t network;
+    uint32_t network; // Data Link Type
 
 } pcap_global_header_t;
 typedef struct __attribute__((packed)) // Packet Header
@@ -27,6 +27,10 @@ typedef struct __attribute__((packed)) // SLL2 Header
     uint8_t skipped_data[18];
     uint16_t protocol_type;
 } sll2_header_t;
+typedef struct __attribute__((packed)) // Ethernet Header
+{
+
+} ethernet_header_t;
 /*-------------------------------------------------------------------*/
 
 typedef enum
@@ -63,11 +67,11 @@ int check_magic_number(uint32_t *M)
 
     if (b[0] == 0xa1 && b[1] == 0xb2 && b[2] == 0xc3 && b[3] == 0xd4)
     {
-        return LITTLE;
+        return BIG;
     }
     else if (b[0] == 0xd4 && b[1] == 0xc3 && b[2] == 0xb2 && b[3] == 0xa1)
     {
-        return BIG;
+        return LITTLE;
     }
     else
     {
@@ -95,7 +99,6 @@ void print_global_header(pcap_global_header_t *global_header)
     printf("Snaplen : %d\n", global_header->snaplen);
     printf("Network : 0x%X\n", global_header->network);
 }
-
 void read_packet_header(FILE *fp)
 {
     pcap_packet_header_t packet_header;
@@ -140,9 +143,9 @@ int main()
     print_global_header(&global_header);
 
     /* if (global_header.network == 0x114)
-     {
-         fread(&sll2_header, sizeof(sll2_header_t), 1, filePointer);
-     }*/
+ {
+     fread(&sll2_header, sizeof(sll2_header_t), 1, filePointer);
+ }*/
 
     // read_packet_header(filePointer);
 
