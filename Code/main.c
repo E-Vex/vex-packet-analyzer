@@ -33,12 +33,6 @@ typedef struct __attribute__((packed)) // Ethernet Header
 } ethernet_header_t;
 /*-------------------------------------------------------------------*/
 
-typedef enum
-{
-    BIG,
-    LITTLE
-} endian_t;
-
 /*--------------------------Functions-------------------------------*/
 void check_file_pointer(FILE *fp)
 {
@@ -61,24 +55,6 @@ void swap_bytes(void *data, size_t size)
         bytes[size - 1 - i] = tmp;
     }
 }
-int check_magic_number(uint32_t *M)
-{
-    uint8_t *b = (uint8_t *)M;
-
-    if (b[0] == 0xa1 && b[1] == 0xb2 && b[2] == 0xc3 && b[3] == 0xd4)
-    {
-        return BIG;
-    }
-    else if (b[0] == 0xd4 && b[1] == 0xc3 && b[2] == 0xb2 && b[3] == 0xa1)
-    {
-        return LITTLE;
-    }
-    else
-    {
-        printf("Error: the file is corrupted or is not a valid PCAP file\n");
-        exit(1);
-    }
-}
 void swap_global_header(pcap_global_header_t *global_header)
 {
     swap_bytes(&(global_header->magic_number), sizeof(global_header->magic_number));
@@ -89,6 +65,24 @@ void swap_global_header(pcap_global_header_t *global_header)
     swap_bytes(&(global_header->snaplen), sizeof(global_header->snaplen));
     swap_bytes(&(global_header->network), sizeof(global_header->network));
 }
+void check_magic_number(uint32_t *M, pcap_global_header_t *global_header)
+{
+    uint8_t *b = (uint8_t *)M;
+    if (b[0] == 0xa1 && b[1] == 0xb2 && b[2] == 0xc3 && b[3] == 0xd4)
+    {
+        swap_global_header(global_header);
+    }
+    else if (b[0] == 0xd4 && b[1] == 0xc3 && b[2] == 0xb2 && b[3] == 0xa1)
+    {
+        // no swap needed
+    }
+    else
+    {
+        printf("Error: the file is corrupted or is not a valid PCAP file\n");
+        exit(1);
+    }
+}
+
 void print_global_header(pcap_global_header_t *global_header)
 {
     printf("Magic Number : 0x%X\n", global_header->magic_number);
@@ -121,25 +115,15 @@ int main()
     pcap_packet_header_t packet_header;
     sll2_header_t sll2_header;
 
+    /*---------------------------------------------------------------*/
     char *name = get_file_name();
 
     FILE *filePointer = import_file(name);
     check_file_pointer(filePointer);
 
     fread(&global_header, sizeof(pcap_global_header_t), 1, filePointer);
-    int chk = check_magic_number(&(global_header.magic_number));
-    if (chk == BIG)
-    {
-        swap_global_header(&global_header);
-    }
-    else if (chk == LITTLE)
-    {
-    }
-    else
-    {
-        printf("Unexpected Endianness\n");
-        exit(1);
-    }
+    check_magic_number(&(global_header.magic_number), &global_header);
+
     print_global_header(&global_header);
 
     /* if (global_header.network == 0x114)
