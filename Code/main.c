@@ -65,9 +65,9 @@ void swap_global_header(pcap_global_header_t *global_header)
     swap_bytes(&(global_header->snaplen), sizeof(global_header->snaplen));
     swap_bytes(&(global_header->network), sizeof(global_header->network));
 }
-void check_magic_number(uint32_t *M, pcap_global_header_t *global_header)
+void normalize_global_header(pcap_global_header_t *global_header)
 {
-    uint8_t *b = (uint8_t *)M;
+    uint8_t *b = (uint8_t *)global_header->magic_number;
     if (b[0] == 0xa1 && b[1] == 0xb2 && b[2] == 0xc3 && b[3] == 0xd4)
     {
         swap_global_header(global_header);
@@ -82,7 +82,6 @@ void check_magic_number(uint32_t *M, pcap_global_header_t *global_header)
         exit(1);
     }
 }
-
 void print_global_header(pcap_global_header_t *global_header)
 {
     printf("Magic Number : 0x%X\n", global_header->magic_number);
@@ -122,7 +121,7 @@ int main()
     check_file_pointer(filePointer);
 
     fread(&global_header, sizeof(pcap_global_header_t), 1, filePointer);
-    check_magic_number(&(global_header.magic_number), &global_header);
+    normalize_global_header(&global_header);
 
     print_global_header(&global_header);
 
