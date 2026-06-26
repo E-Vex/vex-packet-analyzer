@@ -65,12 +65,20 @@ void swap_global_header(pcap_global_header_t *global_header)
     swap_bytes(&(global_header->snaplen), sizeof(global_header->snaplen));
     swap_bytes(&(global_header->network), sizeof(global_header->network));
 }
-void normalize_global_header(pcap_global_header_t *global_header)
+void swap_packet_header(pcap_packet_header_t *packet_header)
+{
+    swap_bytes(&(packet_header->ts_sec), 4);
+    swap_bytes(&(packet_header->ts_usec), 4);
+    swap_bytes(&(packet_header->incl_len), 4);
+    swap_bytes(&(packet_header->orig_len), 4);
+}
+void normalize_headers(pcap_global_header_t *global_header, pcap_packet_header_t *packet_header)
 {
     uint8_t *b = (uint8_t *)global_header->magic_number;
     if (b[0] == 0xa1 && b[1] == 0xb2 && b[2] == 0xc3 && b[3] == 0xd4)
     {
         swap_global_header(global_header);
+        swap_packet_header(packet_header);
     }
     else if (b[0] == 0xd4 && b[1] == 0xc3 && b[2] == 0xb2 && b[3] == 0xa1)
     {
@@ -98,14 +106,9 @@ void read_packet_header(FILE *fp)
     unsigned int i = 0;
     while (fread(&packet_header, sizeof(pcap_packet_header_t), 1, fp) != 0)
     {
-
-        printf("Packet Header : %d\n", i);
-        printf("Packet Size   : %d\n", packet_header.incl_len);
-        i++;
-
-        fseek(fp, packet_header.incl_len, SEEK_CUR);
     }
 }
+
 /*------------------------------------------------------------------*/
 
 int main()
@@ -121,7 +124,7 @@ int main()
     check_file_pointer(filePointer);
 
     fread(&global_header, sizeof(pcap_global_header_t), 1, filePointer);
-    normalize_global_header(&global_header);
+    normalize_global_header(&global_header, &packet_header);
 
     print_global_header(&global_header);
 
