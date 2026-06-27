@@ -3,47 +3,13 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include "file.h"
+#include "protocols.h"
 
 #define LINKTYPE_ETHERNET 1
 #define LINKTYPE_LINUX_SLL2 276
 #define LINKTYPE_IEEE802_11 105
 #define LINKTYPE_LINUX_SLL 113
 #define LINKTYPE_NULL 0
-
-/*--------------------------Structures-------------------------------*/
-typedef struct __attribute__((packed)) // Global Header
-{
-    uint32_t magic_number;
-    uint16_t major_version;
-    uint16_t minor_version;
-    uint32_t this_zone;
-    uint32_t sigfigs;
-    uint32_t snaplen;
-    uint32_t network; // Data Link Type
-
-} pcap_global_header_t;
-typedef struct __attribute__((packed)) // Packet Header
-{
-    uint32_t ts_sec;
-    uint32_t ts_usec;
-    uint32_t incl_len;
-    uint32_t orig_len;
-} pcap_packet_header_t;
-typedef struct __attribute__((packed)) // SLL2 Header
-{
-    uint16_t protocol_type;
-    uint8_t skipped_data[18];
-
-} sll2_header_t;
-typedef struct __attribute__((packed)) // SLL Header
-{
-
-} sll_header_t;
-typedef struct __attribute__((packed)) // Ethernet Header
-{
-
-} ethernet_header_t;
-/*-------------------------------------------------------------------*/
 
 /*--------------------------Functions-------------------------------*/
 void check_file_pointer(FILE *fp)
@@ -86,7 +52,7 @@ void swap_packet_header(pcap_packet_header_t *packet_header)
 }
 void normalize_global_header(pcap_global_header_t *global_header)
 {
-    uint8_t *b = (uint8_t *)global_header->magic_number;
+    uint8_t *b = (uint8_t *)&global_header->magic_number;
     if (b[0] == 0xa1 && b[1] == 0xb2 && b[2] == 0xc3 && b[3] == 0xd4)
     {
         swap_global_header(global_header);
@@ -101,18 +67,16 @@ void normalize_global_header(pcap_global_header_t *global_header)
         exit(1);
     }
 }
-void read_packets(FILE *fp, uint32_t data_link_type)
+void read_packets(FILE *fp, uint32_t data_link_type) // > > > Prototype < < <
 {
     pcap_packet_header_t packet_header;
     sll2_header_t sll2_header;
     sll_header_t sll_header;
     ethernet_header_t ethernet_header;
 
-    unsigned int packet_counter = 0;
+    // unsigned int packet_counter = 0;
 
-    while (fread(&packet_header, sizeof(pcap_packet_header_t), 1, fp) != 0)
-    {
-    }
+    fread(&packet_header, sizeof(pcap_packet_header_t), 1, fp);
 
     switch (data_link_type)
     {
@@ -125,7 +89,9 @@ void read_packets(FILE *fp, uint32_t data_link_type)
         break;
 
     case LINKTYPE_LINUX_SLL2:
-
+        // Network Byte Order BIG Endian
+        swap_bytes(&sll2_header, sizeof(sll2_header_t));
+        printf("We are now in SLL2 link type and we will build here in this case to analyze the pcap file\n");
         break;
 
     default:
@@ -169,6 +135,9 @@ int main()
     fread(&packet_header, sizeof(pcap_packet_header_t), 1, filePointer);
     print_packet_header(&packet_header);
 
+    fread(&sll2_header, sizeof(sll2_header_t), 1, filePointer);
+    swap_bytes(&(sll2_header.protocol_type), 2);
+    printf("-------\nProtocol type: 0x%X\n", sll2_header.protocol_type);
     fclose(filePointer);
     return 0;
 }
