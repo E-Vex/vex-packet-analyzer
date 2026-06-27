@@ -67,35 +67,52 @@ void normalize_global_header(pcap_global_header_t *global_header)
         exit(1);
     }
 }
-void read_packets(FILE *fp, uint32_t data_link_type) // > > > Prototype < < <
+void read_packets(FILE *fp, uint32_t data_link_type, uint32_t magic_number) // > > > Prototype < < <
 {
     pcap_packet_header_t packet_header;
-    sll2_header_t sll2_header;
-    sll_header_t sll_header;
-    ethernet_header_t ethernet_header;
 
-    // unsigned int packet_counter = 0;
-
-    fread(&packet_header, sizeof(pcap_packet_header_t), 1, fp);
-
-    switch (data_link_type)
+    unsigned int packet_counter = 0;
+    while (packet_counter < 3)
     {
-    case LINKTYPE_ETHERNET:
+        fread(&packet_header, sizeof(pcap_packet_header_t), 1, fp);
+        packet_counter++;
 
-        break;
+        uint8_t *b = (uint8_t *)&magic_number;
+        if (b[0] == 0xa1 && b[1] == 0xb2 && b[2] == 0xc3 && b[3] == 0xd4)
+        {
+            swap_packet_header(&packet_header);
+        }
 
-    case LINKTYPE_LINUX_SLL:
+        printf("packet : %d\n", packet_counter);
+        printf("Captured Length: %d bytes\n", packet_header.incl_len);
 
-        break;
+        switch (data_link_type)
+        {
+        case LINKTYPE_ETHERNET:
+            ethernet_header_t ethernet_header;
+            break;
 
-    case LINKTYPE_LINUX_SLL2:
-        // Network Byte Order BIG Endian
-        swap_bytes(&sll2_header, sizeof(sll2_header_t));
-        printf("We are now in SLL2 link type and we will build here in this case to analyze the pcap file\n");
-        break;
+        case LINKTYPE_LINUX_SLL:
+            sll_header_t sll_header;
+            break;
 
-    default:
-        printf("Unsupported Link Type!\n");
+        case LINKTYPE_LINUX_SLL2:
+            // Network Byte Order BIG Endian
+            sll2_header_t sll2_header;
+            fread(&sll2_header, sizeof(sll2_header_t), 1, fp);
+            swap_bytes(&sll2_header.protocol_type, sizeof(sll2_header.protocol_type));
+            swap_bytes(&sll2_header.skipped_data, sizeof(sll2_header.skipped_data));
+            printf("We are now in SLL2 link type and we will build here in this case to analyze the pcap file\nprotocol : 0x%X\n", sll2_header.protocol_type);
+            long pos = ftell(fp);
+            printf("\n------>Position in file = %ld\n\n", pos);
+            fseek(fp, (packet_header.incl_len) - 20, SEEK_CUR);
+            break;
+
+        default:
+            printf("Unsupported Link Type!\n");
+            fseek(fp, packet_header.incl_len, SEEK_CUR);
+            break;
+        }
     }
 }
 void print_global_header(pcap_global_header_t *global_header)
@@ -132,12 +149,10 @@ int main()
 
     fread(&global_header, sizeof(pcap_global_header_t), 1, filePointer);
 
-    fread(&packet_header, sizeof(pcap_packet_header_t), 1, filePointer);
-    print_packet_header(&packet_header);
+    printf("\n----------------\n\n");
 
-    fread(&sll2_header, sizeof(sll2_header_t), 1, filePointer);
-    swap_bytes(&(sll2_header.protocol_type), 2);
-    printf("-------\nProtocol type: 0x%X\n", sll2_header.protocol_type);
+    read_packets(filePointer, global_header.network, global_header.magic_number);
+
     fclose(filePointer);
     return 0;
 }
