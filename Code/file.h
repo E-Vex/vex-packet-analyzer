@@ -18,7 +18,7 @@ void free_list(int_Node *head);
 void insert_at_end(int_Node **headRef, int newData);
 void print_list(int_Node *headRef);
 
-FILE *import_file(const char *filename);
+FILE *import_binary_file(const char *filename);
 void read_file(FILE *filePointer, int_Node **headRef);
 
 char *get_file_name(void);

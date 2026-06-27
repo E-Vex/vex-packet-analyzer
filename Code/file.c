@@ -82,7 +82,7 @@ void print_list(int_Node *headRef)
     printf("NULL\n");
 }
 
-FILE *import_file(char filename[15])
+FILE *import_binary_file(char filename[15])
 {
     FILE *filePointer = fopen(filename, "rb");
     if (filePointer == NULL)

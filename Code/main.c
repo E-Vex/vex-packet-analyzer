@@ -79,10 +79,10 @@ void swap_global_header(pcap_global_header_t *global_header)
 }
 void swap_packet_header(pcap_packet_header_t *packet_header)
 {
-    swap_bytes(&(packet_header->ts_sec), 4);
-    swap_bytes(&(packet_header->ts_usec), 4);
-    swap_bytes(&(packet_header->incl_len), 4);
-    swap_bytes(&(packet_header->orig_len), 4);
+    swap_bytes(&(packet_header->ts_sec), sizeof(packet_header->ts_sec));
+    swap_bytes(&(packet_header->ts_usec), sizeof(packet_header->ts_usec));
+    swap_bytes(&(packet_header->incl_len), sizeof(packet_header->incl_len));
+    swap_bytes(&(packet_header->orig_len), sizeof(packet_header->orig_len));
 }
 void normalize_headers(pcap_global_header_t *global_header, pcap_packet_header_t *packet_header)
 {
@@ -145,10 +145,10 @@ void print_global_header(pcap_global_header_t *global_header)
 }
 void print_packet_header(pcap_packet_header_t *packet_header)
 {
-    printf("ts_sec : %d", packet_header->ts_sec);
-    printf("ts_usec : %d", packet_header->ts_usec);
-    printf("incl_len : %d", packet_header->incl_len);
-    printf("orig_len : %d", packet_header->orig_len);
+    printf("ts_sec : %d\n", packet_header->ts_sec);
+    printf("ts_usec : %d\n", packet_header->ts_usec);
+    printf("incl_len : %d\n", packet_header->incl_len);
+    printf("orig_len : %d\n", packet_header->orig_len);
 }
 
 /*------------------------------------------------------------------*/
@@ -162,15 +162,16 @@ int main()
     /*---------------------------------------------------------------*/
     char *name = get_file_name();
 
-    FILE *filePointer = import_file(name);
+    FILE *filePointer = import_binary_file(name);
     check_file_pointer(filePointer);
 
     fread(&global_header, sizeof(pcap_global_header_t), 1, filePointer);
-    normalize_global_header(&global_header, &packet_header);
+    normalize_headers(&global_header, &packet_header);
 
     print_global_header(&global_header);
 
     fread(&packet_header, sizeof(pcap_packet_header_t), 1, filePointer);
+    print_packet_header(&packet_header);
 
     fclose(filePointer);
     return 0;
