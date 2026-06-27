@@ -3,6 +3,13 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include "file.h"
+
+#define LINKTYPE_ETHERNET 1
+#define LINKTYPE_LINUX_SLL2 276
+#define LINKTYPE_IEEE802_11 105
+#define LINKTYPE_LINUX_SLL 113
+#define LINKTYPE_NULL 0
+
 /*--------------------------Structures-------------------------------*/
 typedef struct __attribute__((packed)) // Global Header
 {
@@ -24,9 +31,14 @@ typedef struct __attribute__((packed)) // Packet Header
 } pcap_packet_header_t;
 typedef struct __attribute__((packed)) // SLL2 Header
 {
-    uint8_t skipped_data[18];
     uint16_t protocol_type;
+    uint8_t skipped_data[18];
+
 } sll2_header_t;
+typedef struct __attribute__((packed)) // SLL Header
+{
+
+} sll_header_t;
 typedef struct __attribute__((packed)) // Ethernet Header
 {
 
@@ -90,6 +102,37 @@ void normalize_headers(pcap_global_header_t *global_header, pcap_packet_header_t
         exit(1);
     }
 }
+void read_packets(FILE *fp, uint32_t data_link_type)
+{
+    pcap_packet_header_t packet_header;
+    sll2_header_t sll2_header;
+    sll_header_t sll_header;
+    ethernet_header_t ethernet_header;
+
+    unsigned int packet_counter = 0;
+
+    while (fread(&packet_header, sizeof(pcap_packet_header_t), 1, fp) != 0)
+    {
+    }
+
+    switch (data_link_type)
+    {
+    case LINKTYPE_ETHERNET:
+
+        break;
+
+    case LINKTYPE_LINUX_SLL:
+
+        break;
+
+    case LINKTYPE_LINUX_SLL2:
+
+        break;
+
+    default:
+        printf("Unsupported Link Type!\n");
+    }
+}
 void print_global_header(pcap_global_header_t *global_header)
 {
     printf("Magic Number : 0x%X\n", global_header->magic_number);
@@ -100,13 +143,12 @@ void print_global_header(pcap_global_header_t *global_header)
     printf("Snaplen : %d\n", global_header->snaplen);
     printf("Network : 0x%X\n", global_header->network);
 }
-void read_packet_header(FILE *fp)
+void print_packet_header(pcap_packet_header_t *packet_header)
 {
-    pcap_packet_header_t packet_header;
-    unsigned int i = 0;
-    while (fread(&packet_header, sizeof(pcap_packet_header_t), 1, fp) != 0)
-    {
-    }
+    printf("ts_sec : %d", packet_header->ts_sec);
+    printf("ts_usec : %d", packet_header->ts_usec);
+    printf("incl_len : %d", packet_header->incl_len);
+    printf("orig_len : %d", packet_header->orig_len);
 }
 
 /*------------------------------------------------------------------*/
@@ -128,12 +170,7 @@ int main()
 
     print_global_header(&global_header);
 
-    /* if (global_header.network == 0x114)
- {
-     fread(&sll2_header, sizeof(sll2_header_t), 1, filePointer);
- }*/
-
-    // read_packet_header(filePointer);
+    fread(&packet_header, sizeof(pcap_packet_header_t), 1, filePointer);
 
     fclose(filePointer);
     return 0;
