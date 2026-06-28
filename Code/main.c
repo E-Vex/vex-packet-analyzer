@@ -67,6 +67,23 @@ void normalize_global_header(pcap_global_header_t *global_header)
         exit(1);
     }
 }
+void swap_ipv4_header(ipv4_header_t *ipv4_header)
+{
+    // 1 byte no swap need
+    // swap_bytes(&(ipv4_header->version_ihl), sizeof(ipv4_header->tos));
+    // swap_bytes(&(ipv4_header->tos), sizeof(ipv4_header->tos));
+
+    swap_bytes(&(ipv4_header->total_length), sizeof(ipv4_header->total_length));
+    swap_bytes(&(ipv4_header->identification), sizeof(ipv4_header->identification));
+    swap_bytes(&(ipv4_header->flags_fo), sizeof(ipv4_header->flags_fo));
+    swap_bytes(&(ipv4_header->ttl), sizeof(ipv4_header->ttl));
+    swap_bytes(&(ipv4_header->protocol), sizeof(ipv4_header->protocol));
+    swap_bytes(&(ipv4_header->checksum), sizeof(ipv4_header->checksum));
+
+    // no need to swap src and dst ip
+    // swap_bytes(&(ipv4_header->src_ip), sizeof(ipv4_header->src_ip));
+    // swap_bytes(&(ipv4_header->dst_ip), sizeof(ipv4_header->dst_ip));
+}
 void print_ipv4_header(ipv4_header_t *ipv4_header)
 {
     printf("version_ihl : %d\n", ipv4_header->version_ihl);
@@ -81,7 +98,7 @@ void print_ipv4_header(ipv4_header_t *ipv4_header)
     uint8_t *src = (uint8_t *)&ipv4_header->src_ip;
     printf("src_ip : %d.%d.%d.%d\n", src[0], src[1], src[2], src[3]);
     uint8_t *dst = (uint8_t *)&ipv4_header->dst_ip;
-    printf("src_ip : %d.%d.%d.%d\n", dst[0], dst[1], dst[2], dst[3]);
+    printf("dst_ip : %d.%d.%d.%d\n", dst[0], dst[1], dst[2], dst[3]);
 }
 void read_packets(FILE *fp, uint32_t data_link_type, uint32_t magic_number) // > > > Prototype < < <
 {
@@ -123,8 +140,12 @@ void read_packets(FILE *fp, uint32_t data_link_type, uint32_t magic_number) // >
             if (sll2_header.protocol_type == 0x800)
             {
                 ipv4_header_t ipv4_header;
+
                 printf("protocol : 0x%X --> IPv4\n", sll2_header.protocol_type);
+
                 fread(&ipv4_header, sizeof(ipv4_header_t), 1, fp);
+                swap_ipv4_header(&ipv4_header);
+
                 printf("\n--------IPv4--------\n\n");
                 print_ipv4_header(&ipv4_header);
             }
