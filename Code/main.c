@@ -67,6 +67,22 @@ void normalize_global_header(pcap_global_header_t *global_header)
         exit(1);
     }
 }
+void print_ipv4_header(ipv4_header_t *ipv4_header)
+{
+    printf("version_ihl : %d\n", ipv4_header->version_ihl);
+    printf("tos : %d\n", ipv4_header->tos);
+    printf("total_length : %d\n", ipv4_header->total_length);
+    printf("identification : %d\n", ipv4_header->identification);
+    printf("flags_fo : %d\n", ipv4_header->flags_fo);
+    printf("ttl : %d\n", ipv4_header->ttl);
+    printf("protocol : %d\n", ipv4_header->protocol);
+    printf("checksum : %d\n", ipv4_header->checksum);
+
+    uint8_t *src = (uint8_t *)&ipv4_header->src_ip;
+    printf("src_ip : %d.%d.%d.%d\n", src[0], src[1], src[2], src[3]);
+    uint8_t *dst = (uint8_t *)&ipv4_header->dst_ip;
+    printf("src_ip : %d.%d.%d.%d\n", dst[0], dst[1], dst[2], dst[3]);
+}
 void read_packets(FILE *fp, uint32_t data_link_type, uint32_t magic_number) // > > > Prototype < < <
 {
     pcap_packet_header_t packet_header;
@@ -99,13 +115,23 @@ void read_packets(FILE *fp, uint32_t data_link_type, uint32_t magic_number) // >
         case LINKTYPE_LINUX_SLL2:
             // Network Byte Order BIG Endian
             sll2_header_t sll2_header;
+
             fread(&sll2_header, sizeof(sll2_header_t), 1, fp);
             swap_bytes(&sll2_header.protocol_type, sizeof(sll2_header.protocol_type));
-            swap_bytes(&sll2_header.skipped_data, sizeof(sll2_header.skipped_data));
-            printf("We are now in SLL2 link type and we will build here in this case to analyze the pcap file\nprotocol : 0x%X\n", sll2_header.protocol_type);
+
+            printf("SLL2 data link type\n");
+            if (sll2_header.protocol_type == 0x800)
+            {
+                ipv4_header_t ipv4_header;
+                printf("protocol : 0x%X --> IPv4\n", sll2_header.protocol_type);
+                fread(&ipv4_header, sizeof(ipv4_header_t), 1, fp);
+                printf("\n--------IPv4--------\n\n");
+                print_ipv4_header(&ipv4_header);
+            }
+
             long pos = ftell(fp);
             printf("\n------>Position in file = %ld\n\n", pos);
-            fseek(fp, (packet_header.incl_len) - 20, SEEK_CUR);
+            fseek(fp, (packet_header.incl_len) - 40, SEEK_CUR);
             break;
 
         default:

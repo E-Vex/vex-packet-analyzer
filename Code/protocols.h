@@ -33,4 +33,17 @@ typedef struct __attribute__((packed)) // Ethernet Header
 {
 
 } ethernet_header_t;
+typedef struct __attribute__((packed)) // IPv4 Header
+{
+    uint8_t version_ihl;     // Version (4 bits) + Internet Header Length (4 bits)
+    uint8_t tos;             // Type of Service
+    uint16_t total_length;   // Total Length of the IP packet
+    uint16_t identification; // Identification
+    uint16_t flags_fo;       // Flags (3 bits) + Fragment Offset (13 bits)
+    uint8_t ttl;             // Time to Live
+    uint8_t protocol;        // Protocol (TCP=6, UDP=17)
+    uint16_t checksum;       // Header Checksum
+    uint32_t src_ip;         // Source IP Address
+    uint32_t dst_ip;         // Destination IP Address
+} ipv4_header_t;
 /*-------------------------------------------------------------------*/
