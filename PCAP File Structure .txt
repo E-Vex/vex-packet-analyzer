@@ -1,0 +1,77 @@
++===================================================================================+
+|                                    TEST.PCAP FILE                                 |
++===================================================================================+
+| [ PCAP Global Header ] (24 Bytes)                                                 |
+| --------------------------------------------------------------------------------- |
+|  - Read once in main.                                                             |
+|  - Check the Magic Number to normalize endianness.                                |
+|  - Extract the link-layer type (e.g., LINKTYPE_LINUX_SLL2 = 276).                |
++===================================================================================+
+                                         ||
+                                         || (File pointer fp moves automatically down)
+                                         \/
++===================================================================================+
+| [ LOOP: PACKET COUNTER < 3 ] - Packet processing loop                            |
++===================================================================================+
+|                                                                                   |
+|  +-----------------------------------------------------------------------------+  |
+|  | 1. PCAP Packet Header (16 Bytes)                                            |  |
+|  | --------------------------------------------------------------------------- |  |
+|  |  - fread(&packet_header, 16, 1, fp);                                        |  |
+|  |  - Byte-swap the incl_len field if the file's endianness is Big-Endian.     |  |
+|  |  - This field indicates the total remaining space for the packet in the     |  |
+|  |    file (e.g., 208 bytes).                                                  |  |
+|  +-----------------------------------------------------------------------------+  |
+|                                        ||                                         |
+|                                        \/                                         |
+|  +-----------------------------------------------------------------------------+  |
+|  | 2. Linux SLL2 Header (20 Bytes) - [Data Link Layer]                        |  |
+|  | --------------------------------------------------------------------------- |  |
+|  |  - fread(&sll2_header, 20, 1, fp);                                          |  |
+|  |  - Swap the protocol_type field from Network Order to Host Order.           |  |
+|  |  - Check upper-layer protocol -> (0x800 == IPv4).                           |  |
+|  +-----------------------------------------------------------------------------+  |
+|                                        ||                                         |
+|                                        \/                                         |
+|  +-----------------------------------------------------------------------------+  |
+|  | 3. IPv4 Header (20 Bytes) - [Network Layer]                                 |  |
+|  | --------------------------------------------------------------------------- |  |
+|  |  - fread(&ipv4_header, 20, 1, fp);                                          |  |
+|  |  - Swap multi-byte fields (Total Length, Checksum, etc.).                   |  |
+|  |  - Decode IPs using a byte array and pointers: (uint8_t *)&src_ip.          |  |
+|  |  - Check transport layer protocol -> (Protocol 6 == TCP).                   |  |
+|  +-----------------------------------------------------------------------------+  |
+|                                        ||                                         |
+|                                        \/                                         |
+|  +-----------------------------------------------------------------------------+  |
+|  | 4. TCP Header (20 Bytes Base + Options) - [Transport Layer]                 |  |
+|  | --------------------------------------------------------------------------- |  |
+|  |  - fread(&tcp_header, 20, 1, fp);                                           |  |
+|  |  - Swap vital ports (Source / Destination Ports).                           |  |
+|  |  - Extract Flags and Offset using bitwise masks and shifts.                 |  |
+|  |  - Dynamically calculate the real TCP header length:                        |  |
+|  |    (tcp_header_len = offset * 4)                                            |  |
+|  +-----------------------------------------------------------------------------+  |
+|                                        ||                                         |
+|                                        \/                                         |
+|  +-----------------------------------------------------------------------------+  |
+|  | 5. Remaining Payload & Options - [Remaining payload and application data]   |  |
+|  | --------------------------------------------------------------------------- |  |
+|  |                                                                             |  |
+|  |   ===================================================================>      |  |
+|  |   |  fseek(fp, packet_header.incl_len - (20 + 20 + tcp_header_len), CUR);  |  |
+|  |   ===================================================================>      |  |
+|  |                                                                             |  |
+|  |  - The file pointer (fp) jumps precisely over all remaining packet bytes    |  |
+|  |    without reading them, landing safely at the first byte of the next       |  |
+|  |    Packet Header.                                                           |  |
+|  +-----------------------------------------------------------------------------+  |
+|                                                                                   |
++===================================================================================+
+                                         ||
+                                         || (Loop repeats for the next packet)
+                                         \/
++===================================================================================+
+| [ Next Packet Header ] -> reads packet 2 and 3 using the same mechanism...        |
++===================================================================================+
+

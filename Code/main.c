@@ -184,6 +184,7 @@ void read_packets(FILE *fp, uint32_t data_link_type, uint32_t magic_number) // >
 
         case LINKTYPE_LINUX_SLL2:
             sll2_header_t sll2_header;
+            int tcp_header_len;
 
             fread(&sll2_header, sizeof(sll2_header_t), 1, fp);
             swap_bytes(&sll2_header.protocol_type, sizeof(sll2_header.protocol_type));
@@ -192,6 +193,7 @@ void read_packets(FILE *fp, uint32_t data_link_type, uint32_t magic_number) // >
 
             if (sll2_header.protocol_type == 0x800) // ipv4
             {
+
                 ipv4_header_t ipv4_header;
 
                 printf("protocol : 0x%X --> IPv4\n", sll2_header.protocol_type);
@@ -204,7 +206,10 @@ void read_packets(FILE *fp, uint32_t data_link_type, uint32_t magic_number) // >
 
                 if (ipv4_header.protocol == 6) // TCP
                 {
+
                     tcp_header_t tcp_header;
+                    tcp_header_len = ((tcp_header.offset_reserved >> 4) & 0x0F) * 4;
+
                     fread(&tcp_header, sizeof(tcp_header_t), 1, fp);
                     swap_tcp_header(&tcp_header);
                     printf("-------TCP-------\n");
@@ -215,7 +220,7 @@ void read_packets(FILE *fp, uint32_t data_link_type, uint32_t magic_number) // >
             long pos = ftell(fp);
             printf("\n------>Position in file = %ld\n\n", pos);
 
-            fseek(fp, (packet_header.incl_len) - 60, SEEK_CUR);
+            fseek(fp, (packet_header.incl_len) - 40 - tcp_header_len, SEEK_CUR);
             break;
 
         default:
