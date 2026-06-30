@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include <arpa/inet.h>
 #include "file.h"
 #include "protocols.h"
 
@@ -84,6 +85,20 @@ void swap_ipv4_header(ipv4_header_t *ipv4_header)
     // swap_bytes(&(ipv4_header->src_ip), sizeof(ipv4_header->src_ip));
     // swap_bytes(&(ipv4_header->dst_ip), sizeof(ipv4_header->dst_ip));
 }
+void swap_tcp_header(tcp_header_t *tcp_header)
+{
+    swap_bytes(&(tcp_header->source_port), sizeof(tcp_header->source_port));
+    swap_bytes(&(tcp_header->dst_port), sizeof(tcp_header->dst_port));
+    swap_bytes(&(tcp_header->seq_num), sizeof(tcp_header->seq_num));
+    swap_bytes(&(tcp_header->ack_num), sizeof(tcp_header->ack_num));
+
+    // swap_bytes(tcp_header->offset_reserved, sizeof(tcp_header->offset_reserved));
+    // swap_bytes(tcp_header->flags, sizeof(tcp_header->flags));
+
+    swap_bytes(&(tcp_header->window), sizeof(tcp_header->window));
+    swap_bytes(&(tcp_header->checksum), sizeof(tcp_header->checksum));
+    swap_bytes(&(tcp_header->urgent_ptr), sizeof(tcp_header->urgent_ptr));
+}
 void print_ipv4_header(ipv4_header_t *ipv4_header)
 {
     printf("version_ihl : %d\n", ipv4_header->version_ihl);
@@ -99,6 +114,44 @@ void print_ipv4_header(ipv4_header_t *ipv4_header)
     printf("src_ip : %d.%d.%d.%d\n", src[0], src[1], src[2], src[3]);
     uint8_t *dst = (uint8_t *)&ipv4_header->dst_ip;
     printf("dst_ip : %d.%d.%d.%d\n", dst[0], dst[1], dst[2], dst[3]);
+}
+void print_global_header(pcap_global_header_t *global_header)
+{
+    printf("Magic Number : 0x%X\n", global_header->magic_number);
+    printf("Major Version : %d\n", global_header->major_version);
+    printf("Minor Version : %d\n", global_header->minor_version);
+    printf("This Zone : %d\n", global_header->this_zone);
+    printf("Sigfigs : %d\n", global_header->sigfigs);
+    printf("Snaplen : %d\n", global_header->snaplen);
+    printf("Network : 0x%X\n", global_header->network);
+}
+void print_packet_header(pcap_packet_header_t *packet_header)
+{
+    printf("ts_sec : %d\n", packet_header->ts_sec);
+    printf("ts_usec : %d\n", packet_header->ts_usec);
+    printf("incl_len : %d\n", packet_header->incl_len);
+    printf("orig_len : %d\n", packet_header->orig_len);
+}
+void print_tcp_header(tcp_header_t *tcp_header)
+{
+    printf("source_port : %d\n", tcp_header->source_port);
+    printf("dst_port : %d\n", tcp_header->dst_port);
+    printf("seq_num : %d\n", tcp_header->seq_num);
+    printf("ack_num : %d\n", tcp_header->ack_num);
+
+    printf("offset : 0x%X\n", (tcp_header->offset_reserved >> 4) & 0x0F);
+    printf("reserved : 0x%X\n", ((tcp_header->offset_reserved)) & 0x0F);
+
+    /*flags*/
+    printf("-----flags-----\n");
+    printf("flags : 0x%X\n", tcp_header->flags);
+    // printf("SYN: 0x%X\n", );
+    // printf("ACK: 0x%X\n")
+    // printf("FIN: 0x%X\n", );
+    printf("----------------\n");
+    printf("window: %d\n", tcp_header->window);
+    printf("checksum: %d\n", tcp_header->checksum);
+    printf("urgent_ptr: %d\n", tcp_header->urgent_ptr);
 }
 void read_packets(FILE *fp, uint32_t data_link_type, uint32_t magic_number) // > > > Prototype < < <
 {
@@ -130,14 +183,14 @@ void read_packets(FILE *fp, uint32_t data_link_type, uint32_t magic_number) // >
             break;
 
         case LINKTYPE_LINUX_SLL2:
-            // Network Byte Order BIG Endian
             sll2_header_t sll2_header;
 
             fread(&sll2_header, sizeof(sll2_header_t), 1, fp);
             swap_bytes(&sll2_header.protocol_type, sizeof(sll2_header.protocol_type));
 
             printf("SLL2 data link type\n");
-            if (sll2_header.protocol_type == 0x800)
+
+            if (sll2_header.protocol_type == 0x800) // ipv4
             {
                 ipv4_header_t ipv4_header;
 
@@ -148,11 +201,21 @@ void read_packets(FILE *fp, uint32_t data_link_type, uint32_t magic_number) // >
 
                 printf("\n--------IPv4--------\n\n");
                 print_ipv4_header(&ipv4_header);
+
+                if (ipv4_header.protocol == 6) // TCP
+                {
+                    tcp_header_t tcp_header;
+                    fread(&tcp_header, sizeof(tcp_header_t), 1, fp);
+                    swap_tcp_header(&tcp_header);
+                    printf("-------TCP-------\n");
+                    print_tcp_header(&tcp_header);
+                }
             }
 
             long pos = ftell(fp);
             printf("\n------>Position in file = %ld\n\n", pos);
-            fseek(fp, (packet_header.incl_len) - 40, SEEK_CUR);
+
+            fseek(fp, (packet_header.incl_len) - 60, SEEK_CUR);
             break;
 
         default:
@@ -162,24 +225,6 @@ void read_packets(FILE *fp, uint32_t data_link_type, uint32_t magic_number) // >
         }
     }
 }
-void print_global_header(pcap_global_header_t *global_header)
-{
-    printf("Magic Number : 0x%X\n", global_header->magic_number);
-    printf("Major Version : %d\n", global_header->major_version);
-    printf("Minor Version : %d\n", global_header->minor_version);
-    printf("This Zone : %d\n", global_header->this_zone);
-    printf("Sigfigs : %d\n", global_header->sigfigs);
-    printf("Snaplen : %d\n", global_header->snaplen);
-    printf("Network : 0x%X\n", global_header->network);
-}
-void print_packet_header(pcap_packet_header_t *packet_header)
-{
-    printf("ts_sec : %d\n", packet_header->ts_sec);
-    printf("ts_usec : %d\n", packet_header->ts_usec);
-    printf("incl_len : %d\n", packet_header->incl_len);
-    printf("orig_len : %d\n", packet_header->orig_len);
-}
-
 /*------------------------------------------------------------------*/
 
 int main()
