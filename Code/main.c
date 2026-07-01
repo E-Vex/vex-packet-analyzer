@@ -158,9 +158,12 @@ void read_packets(FILE *fp, uint32_t data_link_type, uint32_t magic_number) // >
     pcap_packet_header_t packet_header;
 
     unsigned int packet_counter = 0;
+    int remaining_payload = 0;
     while (packet_counter < 3)
     {
+        remaining_payload = 0;
         fread(&packet_header, sizeof(pcap_packet_header_t), 1, fp);
+
         packet_counter++;
 
         uint8_t *b = (uint8_t *)&magic_number;
@@ -168,6 +171,8 @@ void read_packets(FILE *fp, uint32_t data_link_type, uint32_t magic_number) // >
         {
             swap_packet_header(&packet_header);
         }
+
+        remaining_payload += packet_header.incl_len;
 
         printf("packet : %d\n", packet_counter);
         printf("Captured Length: %d bytes\n", packet_header.incl_len);
@@ -187,11 +192,12 @@ void read_packets(FILE *fp, uint32_t data_link_type, uint32_t magic_number) // >
             int tcp_header_len;
 
             fread(&sll2_header, sizeof(sll2_header_t), 1, fp);
+            remaining_payload -= sizeof(sll2_header);
             swap_bytes(&sll2_header.protocol_type, sizeof(sll2_header.protocol_type));
 
             printf("SLL2 data link type\n");
 
-            if (sll2_header.protocol_type == 0x800) // ipv4
+            if (sll2_header.protocol_type == 0x800) // ipv4*
             {
 
                 ipv4_header_t ipv4_header;
@@ -199,6 +205,7 @@ void read_packets(FILE *fp, uint32_t data_link_type, uint32_t magic_number) // >
                 printf("protocol : 0x%X --> IPv4\n", sll2_header.protocol_type);
 
                 fread(&ipv4_header, sizeof(ipv4_header_t), 1, fp);
+                remaining_payload -= 20;
                 swap_ipv4_header(&ipv4_header);
 
                 printf("\n--------IPv4--------\n\n");
@@ -212,6 +219,7 @@ void read_packets(FILE *fp, uint32_t data_link_type, uint32_t magic_number) // >
                     fread(&tcp_header, sizeof(tcp_header_t), 1, fp);
 
                     tcp_header_len = ((tcp_header.offset_reserved >> 4) & 0x0F) * 4;
+                    remaining_payload -= 20;
 
                     swap_tcp_header(&tcp_header);
                     printf("-------TCP-------\n");
@@ -222,7 +230,7 @@ void read_packets(FILE *fp, uint32_t data_link_type, uint32_t magic_number) // >
             long pos = ftell(fp);
             printf("\n------>Position in file = %ld\n\n", pos);
 
-            fseek(fp, (packet_header.incl_len) - 40 - tcp_header_len, SEEK_CUR);
+            fseek(fp, remaining_payload, SEEK_CUR);
             break;
 
         default:
