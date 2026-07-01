@@ -208,9 +208,11 @@ void read_packets(FILE *fp, uint32_t data_link_type, uint32_t magic_number) // >
                 {
 
                     tcp_header_t tcp_header;
-                    tcp_header_len = ((tcp_header.offset_reserved >> 4) & 0x0F) * 4;
 
                     fread(&tcp_header, sizeof(tcp_header_t), 1, fp);
+
+                    tcp_header_len = ((tcp_header.offset_reserved >> 4) & 0x0F) * 4;
+
                     swap_tcp_header(&tcp_header);
                     printf("-------TCP-------\n");
                     print_tcp_header(&tcp_header);
