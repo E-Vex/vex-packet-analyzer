@@ -246,7 +246,6 @@ int main()
 {
     pcap_global_header_t global_header;
     pcap_packet_header_t packet_header;
-    sll2_header_t sll2_header;
 
     /*---------------------------------------------------------------*/
     char *name = get_file_name();
