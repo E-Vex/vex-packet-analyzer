@@ -4,6 +4,7 @@
 #include <stdint.h>
 
 /*--------------------------Structures-------------------------------*/
+/*-------------------------------------------------------------------*/
 typedef struct __attribute__((packed)) // Global Header
 {
     uint32_t magic_number;
@@ -22,6 +23,9 @@ typedef struct __attribute__((packed)) // Packet Header
     uint32_t incl_len;
     uint32_t orig_len;
 } pcap_packet_header_t;
+/*-------------------------------------------------------------------*/
+
+/*--------------------------Data-Link--------------------------------*/
 typedef struct __attribute__((packed)) // SLL2 Header
 {
     uint16_t protocol_type;
@@ -36,6 +40,9 @@ typedef struct __attribute__((packed)) // Ethernet Header
 {
 
 } ethernet_header_t;
+/*-------------------------------------------------------------------*/
+
+/*---------------------------Network---------------------------------*/
 typedef struct __attribute__((packed)) // IPv4 Header
 {
     uint8_t version_ihl;     // Version (4 bits) + Internet Header Length (4 bits)
@@ -61,7 +68,6 @@ typedef struct __attribute__((packed)) // TCP Header
     uint16_t checksum;
     uint16_t urgent_ptr;
 } tcp_header_t;
-
 /*-------------------------------------------------------------------*/
 
 #endif
