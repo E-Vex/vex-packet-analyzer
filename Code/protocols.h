@@ -1,3 +1,6 @@
+#ifndef PROTOCOLS_H
+#define PROTOCOLS_H
+
 #include <stdint.h>
 
 /*--------------------------Structures-------------------------------*/
@@ -60,3 +63,5 @@ typedef struct __attribute__((packed)) // TCP Header
 } tcp_header_t;
 
 /*-------------------------------------------------------------------*/
+
+#endif
