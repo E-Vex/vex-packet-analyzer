@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "endian.h"
 #include "protocols.h"
 
 void normalize_global_header(pcap_global_header_t *global_header);

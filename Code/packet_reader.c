@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "protocols.h"
 #include "endian.h"
+#include "protocols.h"
 
 #define LINKTYPE_ETHERNET 1
 #define LINKTYPE_LINUX_SLL2 276
