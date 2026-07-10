@@ -1,12 +1,16 @@
 #ifndef SWAP_H
 #define SWAP_H
 
-#include <stdio.h>
 #include <stdint.h>
-#include "protocols.h"
+#include <stddef.h>
+
+typedef struct __attribute__((packed))
+{
+    size_t offset;
+    size_t size;
+} field_descriptor_t;
 
 void swap_bytes(void *data, size_t size);
-void swap_global_header(pcap_global_header_t *global_header);
-void swap_packet_header(pcap_packet_header_t *packet_header);
+void swap_fields(void *base, const field_descriptor_t *fields, size_t count);
 
 #endif

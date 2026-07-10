@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include "endian.h"
 #include "protocols.h"
+#include "protocol_swap.h"
 
 #define LINKTYPE_ETHERNET 1
 #define LINKTYPE_LINUX_SLL2 276
@@ -27,37 +28,7 @@ void normalize_global_header(pcap_global_header_t *global_header)
         exit(1);
     }
 }
-void swap_ipv4_header(ipv4_header_t *ipv4_header)
-{
-    // 1 byte no swap need
-    // swap_bytes(&(ipv4_header->version_ihl), sizeof(ipv4_header->tos));
-    // swap_bytes(&(ipv4_header->tos), sizeof(ipv4_header->tos));
 
-    swap_bytes(&(ipv4_header->total_length), sizeof(ipv4_header->total_length));
-    swap_bytes(&(ipv4_header->identification), sizeof(ipv4_header->identification));
-    swap_bytes(&(ipv4_header->flags_fo), sizeof(ipv4_header->flags_fo));
-    swap_bytes(&(ipv4_header->ttl), sizeof(ipv4_header->ttl));
-    swap_bytes(&(ipv4_header->protocol), sizeof(ipv4_header->protocol));
-    swap_bytes(&(ipv4_header->checksum), sizeof(ipv4_header->checksum));
-
-    // no need to swap src and dst ip
-    // swap_bytes(&(ipv4_header->src_ip), sizeof(ipv4_header->src_ip));
-    // swap_bytes(&(ipv4_header->dst_ip), sizeof(ipv4_header->dst_ip));
-}
-void swap_tcp_header(tcp_header_t *tcp_header)
-{
-    swap_bytes(&(tcp_header->source_port), sizeof(tcp_header->source_port));
-    swap_bytes(&(tcp_header->dst_port), sizeof(tcp_header->dst_port));
-    swap_bytes(&(tcp_header->seq_num), sizeof(tcp_header->seq_num));
-    swap_bytes(&(tcp_header->ack_num), sizeof(tcp_header->ack_num));
-
-    // swap_bytes(tcp_header->offset_reserved, sizeof(tcp_header->offset_reserved));
-    // swap_bytes(tcp_header->flags, sizeof(tcp_header->flags));
-
-    swap_bytes(&(tcp_header->window), sizeof(tcp_header->window));
-    swap_bytes(&(tcp_header->checksum), sizeof(tcp_header->checksum));
-    swap_bytes(&(tcp_header->urgent_ptr), sizeof(tcp_header->urgent_ptr));
-}
 void print_ipv4_header(ipv4_header_t *ipv4_header)
 {
     printf("version_ihl : %d\n", ipv4_header->version_ihl);
@@ -119,10 +90,9 @@ void read_packets(FILE *fp, uint32_t data_link_type, uint32_t magic_number)
 
     unsigned int packet_counter = 0;
     int remaining_payload = 0;
-    while (packet_counter < 3)
+    while (packet_counter < 3 && fread(&packet_header, sizeof(pcap_packet_header_t), 1, fp) == 1)
     {
         remaining_payload = 0;
-        fread(&packet_header, sizeof(pcap_packet_header_t), 1, fp);
 
         packet_counter++;
 
