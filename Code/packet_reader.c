@@ -72,12 +72,22 @@ void print_tcp_header(tcp_header_t *tcp_header)
     printf("offset : 0x%X\n", (tcp_header->offset_reserved >> 4) & 0x0F);
     printf("reserved : 0x%X\n", ((tcp_header->offset_reserved)) & 0x0F);
 
-    /*flags*/
-    printf("-----flags-----\n");
-    printf("flags : 0x%X\n", tcp_header->flags);
-    // printf("SYN: 0x%X\n", );
-    // printf("ACK: 0x%X\n")
-    // printf("FIN: 0x%X\n", );
+    printf("TCP Flags: ");
+
+    if (tcp_header->flags & 0x02)
+        printf("SYN ");
+
+    if (tcp_header->flags & 0x10)
+        printf("ACK ");
+
+    if (tcp_header->flags & 0x01)
+        printf("FIN ");
+
+    if (tcp_header->flags & 0x04)
+        printf("RST ");
+
+    printf("\n");
+
     printf("----------------\n");
     printf("window: %d\n", tcp_header->window);
     printf("checksum: %d\n", tcp_header->checksum);
