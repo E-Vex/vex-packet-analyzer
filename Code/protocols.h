@@ -73,7 +73,7 @@ typedef struct __attribute__((packed)) // TCP Header
     uint32_t ack_num;
     uint8_t offset_reserved;
     /*+--------+---------------------------+
-      | Offset(4 Bytes) Reserved(4 Bytes)  |
+      | Offset(4 bit) Reserved(4 bit)      |
       +--------+---------------------------+*/
 
     uint8_t flags;
