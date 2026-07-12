@@ -73,10 +73,10 @@ void print_packet_header(pcap_packet_header_t *packet_header)
 }
 void print_tcp_header(tcp_header_t *tcp_header)
 {
-    printf("source_port : %d\n", tcp_header->source_port);
-    printf("dst_port : %d\n", tcp_header->dst_port);
-    printf("seq_num : %d\n", tcp_header->seq_num);
-    printf("ack_num : %d\n", tcp_header->ack_num);
+    printf("source_port : %u\n", tcp_header->source_port);
+    printf("dst_port : %u\n", tcp_header->dst_port);
+    printf("seq_num : %u\n", tcp_header->seq_num);
+    printf("ack_num : %u\n", tcp_header->ack_num);
 
     printf("offset : 0x%X\n", (tcp_header->offset_reserved >> 4) & 0x0F);
     printf("reserved : 0x%X\n", ((tcp_header->offset_reserved)) & 0x0F);
@@ -103,9 +103,9 @@ void print_tcp_header(tcp_header_t *tcp_header)
     printf("\n");
 
     printf("----------------\n");
-    printf("window: %d\n", tcp_header->window);
-    printf("checksum: %d\n", tcp_header->checksum);
-    printf("urgent_ptr: %d\n", tcp_header->urgent_ptr);
+    printf("window: %u\n", tcp_header->window);
+    printf("checksum: %u\n", tcp_header->checksum);
+    printf("urgent_ptr: %u\n", tcp_header->urgent_ptr);
 }
 
 void read_packets(FILE *fp, uint32_t data_link_type, uint32_t magic_number)
