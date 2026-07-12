@@ -45,7 +45,13 @@ typedef struct __attribute__((packed)) // Ethernet Header
 /*---------------------------Network---------------------------------*/
 typedef struct __attribute__((packed)) // IPv4 Header
 {
-    uint8_t version_ihl;     // Version (4 bits) + Internet Header Length (4 bits)
+    uint8_t version_ihl; // Version (4 bits) + Internet Header Length (4 bits)
+
+    /*+-+-+-+-+-+-+-+-+*
+    | Version |   IHL  |
+    |  4 bits | 4 bits |
+    *+-+-+-+-+-+-+-+-+*/
+
     uint8_t tos;             // Type of Service
     uint16_t total_length;   // Total Length of the IP packet
     uint16_t identification; // Identification
