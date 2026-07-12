@@ -134,11 +134,14 @@ void read_packets(FILE *fp, uint32_t data_link_type, uint32_t magic_number)
 
         case LINKTYPE_LINUX_SLL2:
             sll2_header_t sll2_header;
-            int tcp_header_len;
+            int ipv4_header_len = 0;
+            int tcp_header_len = 0;
 
             fread(&sll2_header, sizeof(sll2_header_t), 1, fp);
-            remaining_payload -= sizeof(sll2_header);
+
             swap_bytes(&sll2_header.protocol_type, sizeof(sll2_header.protocol_type));
+
+            remaining_payload -= sizeof(sll2_header);
 
             printf("SLL2 data link type\n");
 
@@ -150,10 +153,21 @@ void read_packets(FILE *fp, uint32_t data_link_type, uint32_t magic_number)
                 printf("protocol : 0x%X --> IPv4\n", sll2_header.protocol_type);
 
                 fread(&ipv4_header, sizeof(ipv4_header_t), 1, fp);
-                remaining_payload -= 20;
+
                 swap_ipv4_header(&ipv4_header);
 
-                printf("\n--------IPv4--------\n\n");
+                ipv4_header_len = (ipv4_header.version_ihl & 0x0F) * 4;
+                if (ipv4_header_len > 20)
+                {
+                    fseek(fp, (ipv4_header_len - 20), SEEK_CUR);
+                    remaining_payload -= ipv4_header_len;
+                }
+                else
+                {
+                    remaining_payload -= 20;
+                }
+
+                printf("\n--------------IPv4--------------\n\n");
                 print_ipv4_header(&ipv4_header);
 
                 if (ipv4_header.protocol == 6) // TCP
@@ -163,11 +177,20 @@ void read_packets(FILE *fp, uint32_t data_link_type, uint32_t magic_number)
 
                     fread(&tcp_header, sizeof(tcp_header_t), 1, fp);
 
-                    tcp_header_len = ((tcp_header.offset_reserved >> 4) & 0x0F) * 4;
-                    remaining_payload -= 20;
-
                     swap_tcp_header(&tcp_header);
-                    printf("-------TCP-------\n");
+
+                    tcp_header_len = ((tcp_header.offset_reserved >> 4) & 0x0F) * 4;
+                    if (tcp_header_len > 20)
+                    {
+                        fseek(fp, (tcp_header_len - 20), SEEK_CUR);
+                        remaining_payload -= tcp_header_len;
+                    }
+                    else
+                    {
+                        remaining_payload -= 20;
+                    }
+
+                    printf("\n--------------TCP--------------\n\n");
                     print_tcp_header(&tcp_header);
                 }
             }
