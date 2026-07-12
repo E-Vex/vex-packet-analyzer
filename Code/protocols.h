@@ -72,6 +72,10 @@ typedef struct __attribute__((packed)) // TCP Header
     uint32_t seq_num;
     uint32_t ack_num;
     uint8_t offset_reserved;
+    /*+--------+---------------------------+
+      | Offset(4 Bytes) Reserved(4 Bytes)  |
+      +--------+---------------------------+*/
+
     uint8_t flags;
     uint16_t window;
     uint16_t checksum;
