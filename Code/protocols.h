@@ -56,6 +56,9 @@ typedef struct __attribute__((packed)) // IPv4 Header
     uint32_t src_ip;         // Source IP Address
     uint32_t dst_ip;         // Destination IP Address
 } ipv4_header_t;
+/*-------------------------------------------------------------------*/
+
+/*---------------------------Transport-------------------------------*/
 typedef struct __attribute__((packed)) // TCP Header
 {
     uint16_t source_port;
@@ -69,5 +72,4 @@ typedef struct __attribute__((packed)) // TCP Header
     uint16_t urgent_ptr;
 } tcp_header_t;
 /*-------------------------------------------------------------------*/
-
 #endif
