@@ -73,6 +73,11 @@ void print_tcp_header(tcp_header_t *tcp_header)
     printf("reserved : 0x%X\n", ((tcp_header->offset_reserved)) & 0x0F);
 
     printf("TCP Flags: ");
+    /*Bit Number :
+     7    6    5    4    3    2    1    0
+    +----+----+----+----+----+----+----+----+
+    |CWR |ECE |URG |ACK |PSH |RST |SYN |FIN |
+    +----+----+----+----+----+----+----+----+*/
 
     if (tcp_header->flags & 0x02)
         printf("SYN ");
