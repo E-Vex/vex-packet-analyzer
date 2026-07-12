@@ -205,6 +205,9 @@ void read_packets(FILE *fp, uint32_t data_link_type, uint32_t magic_number)
 
             long pos = ftell(fp);
             printf("\n------>Position in file = %ld\n\n", pos);
+            printf("+----------------------+\n");
+            printf("+    rePayload : %d    \n", remaining_payload);
+            printf("+----------------------+\n");
 
             fseek(fp, remaining_payload, SEEK_CUR);
             break;
