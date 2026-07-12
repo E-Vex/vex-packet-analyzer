@@ -37,7 +37,16 @@ void print_ipv4_header(ipv4_header_t *ipv4_header)
     printf("identification : %d\n", ipv4_header->identification);
     printf("flags_fo : %d\n", ipv4_header->flags_fo);
     printf("ttl : %d\n", ipv4_header->ttl);
-    printf("protocol : %d\n", ipv4_header->protocol);
+
+    if (ipv4_header->protocol == 6)
+    {
+        printf("protocol : TCP\n");
+    }
+    else
+    {
+        printf("protocol : %d\n", ipv4_header->protocol);
+    }
+
     printf("checksum : %d\n", ipv4_header->checksum);
 
     uint8_t *src = (uint8_t *)&ipv4_header->src_ip;
@@ -150,8 +159,7 @@ void read_packets(FILE *fp, uint32_t data_link_type, uint32_t magic_number)
 
                 ipv4_header_t ipv4_header;
 
-                printf("protocol : 0x%X --> IPv4\n", sll2_header.protocol_type);
-
+                printf("protocol : IPv4\n");
                 fread(&ipv4_header, sizeof(ipv4_header_t), 1, fp);
 
                 swap_ipv4_header(&ipv4_header);
