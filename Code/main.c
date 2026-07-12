@@ -32,7 +32,7 @@ int main()
 
     fread(&global_header, sizeof(pcap_global_header_t), 1, filePointer);
 
-    printf("\n----------------\n\n");
+    printf("\n--------------------------------\n\n");
 
     read_packets(filePointer, global_header.network, global_header.magic_number);
 
