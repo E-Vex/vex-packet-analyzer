@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <ctype.h>
 #include "endian.h"
 #include "protocols.h"
 #include "protocol_swap.h"
@@ -107,13 +108,69 @@ void print_tcp_header(tcp_header_t *tcp_header)
     printf("checksum: %u\n", tcp_header->checksum);
     printf("urgent_ptr: %u\n", tcp_header->urgent_ptr);
 }
+int print_payload(FILE *fp, size_t remaining_payload)
+{
+
+    printf("\n--------------PAYLOAD--------------\n\n");
+
+    uint8_t byte_of_data;
+    uint8_t array_bytes_of_data[16];
+    size_t chk = 0;
+    int i = 0;
+
+    if (remaining_payload == 0)
+    {
+        printf("There is no data to display\n");
+    }
+    else if (remaining_payload > 0)
+    {
+        while (chk < remaining_payload)
+        {
+
+            for (i = 0; i < 16; i++)
+            {
+                if (chk < remaining_payload)
+                {
+                    fread(&byte_of_data, sizeof(uint8_t), 1, fp);
+                    chk += 1;
+                    array_bytes_of_data[i] = byte_of_data;
+                }
+                else
+                {
+                    array_bytes_of_data[i] = 0x0;
+                }
+            }
+
+            for (i = 0; i < 16; i++)
+            {
+                if (isprint(array_bytes_of_data[i]))
+                {
+                    printf("%c ", array_bytes_of_data[i]);
+                }
+                else
+                {
+                    printf(".");
+                }
+            }
+
+            printf("\n");
+        }
+    }
+    else
+    {
+        printf("Error! the file has been broken or it's corrupted\n");
+        return 1;
+    }
+
+    return 0;
+}
 
 void read_packets(FILE *fp, uint32_t data_link_type, uint32_t magic_number)
 {
     pcap_packet_header_t packet_header;
 
     unsigned int packet_counter = 0;
-    int remaining_payload = 0;
+    size_t remaining_payload = 0;
     while (packet_counter < 3 && fread(&packet_header, sizeof(pcap_packet_header_t), 1, fp) == 1)
     {
         remaining_payload = 0;
@@ -200,16 +257,19 @@ void read_packets(FILE *fp, uint32_t data_link_type, uint32_t magic_number)
 
                     printf("\n--------------TCP--------------\n\n");
                     print_tcp_header(&tcp_header);
+
+                    printf("+----------------------+\n");
+                    printf("+    rePayload : %d    \n", remaining_payload);
+                    printf("+----------------------+\n");
+
+                    print_payload(fp, remaining_payload);
                 }
             }
 
             long pos = ftell(fp);
             printf("\n------>Position in file = %ld\n\n", pos);
-            printf("+----------------------+\n");
-            printf("+    rePayload : %d    \n", remaining_payload);
-            printf("+----------------------+\n");
 
-            fseek(fp, remaining_payload, SEEK_CUR);
+            // fseek(fp, remaining_payload, SEEK_CUR);
             break;
 
         default:
