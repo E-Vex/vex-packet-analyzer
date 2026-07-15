@@ -267,7 +267,7 @@ void read_packets(FILE *fp, uint32_t data_link_type, uint32_t magic_number)
                     print_tcp_header(&tcp_header);
 
                     printf("+----------------------+\n");
-                    printf("+    rePayload : %d    \n", remaining_payload);
+                    printf("+    rePayload : %zu    \n", remaining_payload);
                     printf("+----------------------+\n");
 
                     print_payload(fp, remaining_payload);
