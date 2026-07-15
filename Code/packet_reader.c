@@ -145,12 +145,20 @@ int print_payload(FILE *fp, size_t remaining_payload)
             {
                 if (isprint(array_bytes_of_data[i]))
                 {
-                    printf("%c ", array_bytes_of_data[i]);
+                    printf("%c", array_bytes_of_data[i]);
                 }
                 else
                 {
                     printf(".");
                 }
+            }
+
+            printf("  |  ");
+
+            for (int i = 0; i < 16; i++)
+            {
+
+                printf("%02X ", array_bytes_of_data[i]);
             }
 
             printf("\n");
