@@ -2,9 +2,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "endian.h"
-#include "display.h"
 #include "protocols.h"
 #include "protocol_swap.h"
+#include "protocol_parser/protocol_parser.h"
 
 #define LINKTYPE_ETHERNET 1
 #define LINKTYPE_LINUX_SLL2 276
@@ -53,6 +53,8 @@ void read_packets(FILE *fp, uint32_t data_link_type, uint32_t magic_number)
         printf("packet : %d\n", packet_counter);
         printf("Captured Length: %d bytes\n", packet_header.incl_len);
 
+        /*packet_header_reader.c*/
+
         switch (data_link_type)
         {
         case LINKTYPE_ETHERNET:
@@ -73,15 +75,13 @@ void read_packets(FILE *fp, uint32_t data_link_type, uint32_t magic_number)
             swap_bytes(&sll2_header.protocol_type, sizeof(sll2_header.protocol_type));
 
             remaining_payload -= sizeof(sll2_header);
-
-            printf("SLL2 data link type\n");
+            /*sll2_header_reader()*/
 
             if (sll2_header.protocol_type == 0x800) // ipv4*
             {
 
                 ipv4_header_t ipv4_header;
 
-                printf("protocol : IPv4\n");
                 fread(&ipv4_header, sizeof(ipv4_header_t), 1, fp);
 
                 swap_ipv4_header(&ipv4_header);
@@ -96,9 +96,7 @@ void read_packets(FILE *fp, uint32_t data_link_type, uint32_t magic_number)
                 {
                     remaining_payload -= 20;
                 }
-
-                printf("\n--------------IPv4--------------\n\n");
-                print_ipv4_header(&ipv4_header);
+                /*ipv4_header_reader()*/
 
                 if (ipv4_header.protocol == 6) // TCP
                 {
@@ -119,15 +117,7 @@ void read_packets(FILE *fp, uint32_t data_link_type, uint32_t magic_number)
                     {
                         remaining_payload -= 20;
                     }
-
-                    printf("\n--------------TCP--------------\n\n");
-                    print_tcp_header(&tcp_header);
-
-                    printf("+----------------------+\n");
-                    printf("+    rePayload : %zu    \n", remaining_payload);
-                    printf("+----------------------+\n");
-
-                    print_payload(fp, remaining_payload);
+                    /*tcp_header_reader.c*/
                 }
             }
 
@@ -142,5 +132,6 @@ void read_packets(FILE *fp, uint32_t data_link_type, uint32_t magic_number)
             fseek(fp, packet_header.incl_len, SEEK_CUR);
             break;
         }
+        /* parse_data_link_layer.c*/
     }
 }
