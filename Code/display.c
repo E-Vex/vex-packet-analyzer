@@ -2,6 +2,13 @@
 #include <ctype.h>
 #include "protocols.h"
 
+void print_packet_header(pcap_packet_header_t *packet_header)
+{
+    printf("ts_sec : 0x%X\n", packet_header->ts_sec);
+    printf("ts_usec : 0x%X\n", packet_header->ts_usec);
+    printf("incl_len : %d\n", packet_header->incl_len);
+    printf("orig_len : %d\n", packet_header->orig_len);
+}
 void print_ipv4_header(ipv4_header_t *ipv4_header)
 {
     printf("version_ihl : %d\n", ipv4_header->version_ihl);
