@@ -9,8 +9,6 @@
 #include "protocols.h"
 #include "protocol_swap.h"
 
-void normalize_global_header(pcap_global_header_t *global_header);
-
 void read_packets(FILE *fp, uint32_t data_link_type, uint32_t magic_number);
 
 #endif

@@ -32,6 +32,15 @@ int main()
 
     fread(&global_header, sizeof(pcap_global_header_t), 1, filePointer);
 
+    uint8_t *bytes = magic_number_as_bytes(&(global_header.magic_number));
+    int pcap_endian = detect_pcap_endianness(bytes);
+    int host_endian = detect_host_endianness();
+
+    if (pcap_endian != host_endian)
+    {
+        swap_global_header(&global_header);
+    }
+
     printf("\n--------------------------------\n\n");
 
     read_packets(filePointer, global_header.network, global_header.magic_number);

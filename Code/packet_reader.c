@@ -12,24 +12,6 @@
 #define LINKTYPE_LINUX_SLL 113
 #define LINKTYPE_NULL 0
 
-void normalize_global_header(pcap_global_header_t *global_header)
-{
-    uint8_t *b = (uint8_t *)&global_header->magic_number;
-    if (b[0] == 0xa1 && b[1] == 0xb2 && b[2] == 0xc3 && b[3] == 0xd4)
-    {
-        swap_global_header(global_header);
-    }
-    else if (b[0] == 0xd4 && b[1] == 0xc3 && b[2] == 0xb2 && b[3] == 0xa1)
-    {
-        // no swap needed
-    }
-    else
-    {
-        printf("Error: the file is corrupted or is not a valid PCAP file\n");
-        exit(1);
-    }
-}
-
 void read_packets(FILE *fp, uint32_t data_link_type, uint32_t magic_number)
 {
     pcap_packet_header_t packet_header;
