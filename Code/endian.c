@@ -66,3 +66,16 @@ int detect_pcap_endianness(uint8_t *b)
     | 0 => (BIG endian)      |
     ========================*/
 }
+
+int detect_host_endianness(void)
+{
+    uint32_t value = 0x01020304;
+    unsigned char *ptr = (unsigned char *)&value;
+
+    return (*ptr == 0x04);
+
+    /*========================
+    | 1 => (LITTLE endian)   |
+    | 0 => (BIG endian)      |
+    ========================*/
+}
