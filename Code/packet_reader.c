@@ -39,11 +39,13 @@ void read_packets(FILE *fp, uint32_t data_link_type, uint32_t magic_number)
     while (packet_counter < 3 && fread(&packet_header, sizeof(pcap_packet_header_t), 1, fp) == 1)
     {
         remaining_payload = 0;
-
         packet_counter++;
 
-        uint8_t *b = (uint8_t *)&magic_number;
-        if (b[0] == 0xa1 && b[1] == 0xb2 && b[2] == 0xc3 && b[3] == 0xd4)
+        uint8_t *bytes = magic_number_as_bytes(&magic_number);
+        int pcap_endian = detect_pcap_endianness(bytes);
+        int host_endian = detect_host_endianness();
+
+        if (pcap_endian != host_endian)
         {
             swap_packet_header(&packet_header);
         }
@@ -73,6 +75,7 @@ void read_packets(FILE *fp, uint32_t data_link_type, uint32_t magic_number)
             fread(&sll2_header, sizeof(sll2_header_t), 1, fp);
 
             swap_bytes(&sll2_header.protocol_type, sizeof(sll2_header.protocol_type));
+            /*parse_sll2_header();*/
 
             remaining_payload -= sizeof(sll2_header);
             /*sll2_header_reader()*/
