@@ -31,3 +31,38 @@ void swap_fields(void *base, const field_descriptor_t *fields, size_t count)
 }
 
 /*---------------------------------------------------------------*/
+
+uint8_t *magic_number_as_bytes(uint32_t *magic_number)
+{
+    return (uint8_t *)magic_number;
+
+    /*=============================================+
+    | We put the magic_number into an 8-bit array  |
+    | to inspect the raw byte order one by one.If  |
+    | we compared it as a full 32-bit integer,our  |
+    | CPU's architecture might flip the bytes      |
+    | around and give us a false reading.          |
+    +============================================= */
+}
+
+int detect_pcap_endianness(uint8_t *b)
+{
+    int endian_state = -1; /*LITTLE = 1 & BIG = 0, Default to -1 (Error / Unknown)*/
+
+    if (b[0] == 0xa1 && b[1] == 0xb2 && b[2] == 0xc3 && b[3] == 0xd4)
+    {
+        endian_state = 0; /*BIG endian*/
+    }
+    else if (b[0] == 0xd4 && b[1] == 0xc3 && b[2] == 0xb2 && b[3] == 0xa1)
+    {
+        endian_state = 1; /*LITTLE endian*/
+    }
+
+    return endian_state;
+
+    /*========================
+    |-1 => (Error / Unknown) |
+    | 1 => (LITTLE endian)   |
+    | 0 => (BIG endian)      |
+    ========================*/
+}
