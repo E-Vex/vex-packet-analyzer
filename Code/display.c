@@ -44,13 +44,6 @@ void print_global_header(pcap_global_header_t *global_header)
     printf("Snaplen : %d\n", global_header->snaplen);
     printf("Network : 0x%X\n", global_header->network);
 }
-void print_packet_header(pcap_packet_header_t *packet_header)
-{
-    printf("ts_sec : %d\n", packet_header->ts_sec);
-    printf("ts_usec : %d\n", packet_header->ts_usec);
-    printf("incl_len : %d\n", packet_header->incl_len);
-    printf("orig_len : %d\n", packet_header->orig_len);
-}
 void print_tcp_header(tcp_header_t *tcp_header)
 {
     printf("source_port : %u\n", tcp_header->source_port);
