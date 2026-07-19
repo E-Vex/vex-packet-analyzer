@@ -5,6 +5,7 @@
 #include "protocols.h"
 #include "protocol_swap.h"
 #include "protocol_parser/protocol_parser.h"
+#include "packet_context.h"
 
 #define LINKTYPE_ETHERNET 1
 #define LINKTYPE_LINUX_SLL2 276
@@ -15,29 +16,25 @@
 void read_packets(FILE *fp, uint32_t data_link_type, uint32_t magic_number)
 {
     pcap_packet_header_t packet_header;
+    packet_context_t ctx;
 
     unsigned int packet_counter = 0;
-    size_t remaining_payload = 0;
+
     while (packet_counter < 3 && fread(&packet_header, sizeof(pcap_packet_header_t), 1, fp) == 1)
     {
-        remaining_payload = 0;
+        ctx.remaining_payload = 0;
+        ctx.fp = fp;
         packet_counter++;
 
+        /*-----------------------------------------------------*/
         uint8_t *bytes = magic_number_as_bytes(&magic_number);
         int pcap_endian = detect_pcap_endianness(bytes);
-        int host_endian = detect_host_endianness();
-
-        if (pcap_endian != host_endian)
-        {
+        ctx.host_endianness = detect_host_endianness();
+        if (pcap_endian != ctx.host_endianness)
             swap_packet_header(&packet_header);
-        }
+        /*-----------------------------------------------------*/
 
-        remaining_payload += packet_header.incl_len;
-
-        printf("packet : %d\n", packet_counter);
-        printf("Captured Length: %d bytes\n", packet_header.incl_len);
-
-        /*packet_header_reader.c*/
+        ctx.remaining_payload += packet_header.incl_len;
 
         switch (data_link_type)
         {
@@ -50,19 +47,14 @@ void read_packets(FILE *fp, uint32_t data_link_type, uint32_t magic_number)
             break;
 
         case LINKTYPE_LINUX_SLL2:
-            sll2_header_t sll2_header;
+
             int ipv4_header_len = 0;
             int tcp_header_len = 0;
 
-            fread(&sll2_header, sizeof(sll2_header_t), 1, fp);
+            parse_sll2_header(&ctx);
+            ctx.remaining_payload -= sizeof(sll2_header_t);
 
-            swap_bytes(&sll2_header.protocol_type, sizeof(sll2_header.protocol_type));
-            /*parse_sll2_header();*/
-
-            remaining_payload -= sizeof(sll2_header);
-            /*sll2_header_reader()*/
-
-            if (sll2_header.protocol_type == 0x800) // ipv4*
+            if (ctx.next_protocol == 0x800) // ipv4*
             {
 
                 ipv4_header_t ipv4_header;
@@ -75,11 +67,11 @@ void read_packets(FILE *fp, uint32_t data_link_type, uint32_t magic_number)
                 if (ipv4_header_len > 20)
                 {
                     fseek(fp, (ipv4_header_len - 20), SEEK_CUR);
-                    remaining_payload -= ipv4_header_len;
+                    ctx.remaining_payload -= ipv4_header_len;
                 }
                 else
                 {
-                    remaining_payload -= 20;
+                    ctx.remaining_payload -= 20;
                 }
                 /*ipv4_header_reader()*/
 
@@ -96,11 +88,11 @@ void read_packets(FILE *fp, uint32_t data_link_type, uint32_t magic_number)
                     if (tcp_header_len > 20)
                     {
                         fseek(fp, (tcp_header_len - 20), SEEK_CUR);
-                        remaining_payload -= tcp_header_len;
+                        ctx.remaining_payload -= tcp_header_len;
                     }
                     else
                     {
-                        remaining_payload -= 20;
+                        ctx.remaining_payload -= 20;
                     }
                     /*tcp_header_reader.c*/
                 }

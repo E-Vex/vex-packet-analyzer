@@ -8,6 +8,7 @@
 #include "protocols.h"
 #include "protocol_swap.h"
 #include "protocol_parser/protocol_parser.h"
+#include "packet_context.h"
 
 void read_packets(FILE *fp, uint32_t data_link_type, uint32_t magic_number);
 
