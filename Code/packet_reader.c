@@ -57,24 +57,7 @@ void read_packets(FILE *fp, uint32_t data_link_type, uint32_t magic_number)
 
                 if (ctx.next_protocol == 6) // TCP
                 {
-                    int tcp_header_len = 0;
-                    tcp_header_t tcp_header;
-
-                    fread(&tcp_header, sizeof(tcp_header_t), 1, fp);
-
-                    swap_tcp_header(&tcp_header);
-
-                    tcp_header_len = ((tcp_header.offset_reserved >> 4) & 0x0F) * 4;
-                    if (tcp_header_len > 20)
-                    {
-                        fseek(fp, (tcp_header_len - 20), SEEK_CUR);
-                        ctx.remaining_payload -= tcp_header_len;
-                    }
-                    else
-                    {
-                        ctx.remaining_payload -= 20;
-                    }
-                    /*tcp_header_reader.c*/
+                    parse_tcp_header(&ctx);
                 }
             }
 
