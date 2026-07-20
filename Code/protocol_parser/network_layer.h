@@ -5,7 +5,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "endian.h"
+#include "protocols.h"
+#include "packet_context.h"
 
-void parse_ipv4_header();
+void parse_ipv4_header(packet_context_t *ctx);
 
 #endif

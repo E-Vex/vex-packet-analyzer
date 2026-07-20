@@ -48,36 +48,16 @@ void read_packets(FILE *fp, uint32_t data_link_type, uint32_t magic_number)
 
         case LINKTYPE_LINUX_SLL2:
 
-            int ipv4_header_len = 0;
-            int tcp_header_len = 0;
-
             parse_sll2_header(&ctx);
             ctx.remaining_payload -= sizeof(sll2_header_t);
 
             if (ctx.next_protocol == 0x800) // ipv4*
             {
+                parse_ipv4_header(&ctx);
 
-                ipv4_header_t ipv4_header;
-
-                fread(&ipv4_header, sizeof(ipv4_header_t), 1, fp);
-
-                swap_ipv4_header(&ipv4_header);
-
-                ipv4_header_len = (ipv4_header.version_ihl & 0x0F) * 4;
-                if (ipv4_header_len > 20)
+                if (ctx.next_protocol == 6) // TCP
                 {
-                    fseek(fp, (ipv4_header_len - 20), SEEK_CUR);
-                    ctx.remaining_payload -= ipv4_header_len;
-                }
-                else
-                {
-                    ctx.remaining_payload -= 20;
-                }
-                /*ipv4_header_reader()*/
-
-                if (ipv4_header.protocol == 6) // TCP
-                {
-
+                    int tcp_header_len = 0;
                     tcp_header_t tcp_header;
 
                     fread(&tcp_header, sizeof(tcp_header_t), 1, fp);
