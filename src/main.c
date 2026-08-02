@@ -19,12 +19,18 @@ void check_file_pointer(FILE *fp)
 
 /*------------------------------------------------------------------*/
 
-int main()
+int main(int argc, char *argv[])
 {
     pcap_global_header_t global_header;
     pcap_packet_header_t packet_header;
 
     /*---------------------------------------------------------------*/
+
+    /*Here I want to add the user control from the cli*/
+    /*the code now just ask ther user to enter the pcap file name*/
+    /*my goal is to allow the user to enter the file name form the run command from the cli*/
+    /*ex : ./vetrix -n test.pcap*/
+
     char *name = get_file_name();
 
     FILE *filePointer = import_binary_file(name);
