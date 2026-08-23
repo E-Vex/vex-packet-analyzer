@@ -1,4 +1,4 @@
-# Vex-Packet-Analyzer (Vexor)
+# Vetrix 
 
 A zero-dependency packet analyzer written in C from scratch.
 
