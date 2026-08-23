@@ -1,6 +1,8 @@
 #include <stdio.h>
+#include "file_io.h"
+#include "file_info.h"
 
-FILE *import_binary_file(char filename[15])
+FILE *import_binary_file(const char *filename)
 {
     FILE *filePointer = fopen(filename, "rb");
     if (filePointer == NULL)
@@ -11,15 +13,8 @@ FILE *import_binary_file(char filename[15])
     }
     return filePointer;
 }
-char *get_file_name()
+
+char *get_file_path(file_info_t *file_info)
 {
-    static char file_name[16];
-
-    printf("Enter the file name you want to display: ");
-    if (scanf("%15s", file_name) != 1)
-    {
-        return NULL;
-    }
-
-    return file_name;
+    return file_info->path;
 }

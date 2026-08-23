@@ -6,6 +6,8 @@
 #include "file_io.h"
 #include "protocols.h"
 #include "packet_reader.h"
+#include "cli/cli.h"
+#include "file_info.h"
 
 /*--------------------------Functions-------------------------------*/
 void check_file_pointer(FILE *fp)
@@ -24,16 +26,15 @@ int main(int argc, char *argv[])
     pcap_global_header_t global_header;
     pcap_packet_header_t packet_header;
 
+    file_info_t file_info = {.path = NULL};
+
     /*---------------------------------------------------------------*/
+    if (parse_cli(argc, argv, &file_info) != 1)
+    {
+        return 1;
+    }
 
-    /*Here I want to add the user control from the cli*/
-    /*the code now just ask ther user to enter the pcap file name*/
-    /*my goal is to allow the user to enter the file name form the run command from the cli*/
-    /*ex : ./vetrix -n test.pcap*/
-
-    char *name = get_file_name();
-
-    FILE *filePointer = import_binary_file(name);
+    FILE *filePointer = import_binary_file(file_info.path);
     check_file_pointer(filePointer);
 
     fread(&global_header, sizeof(pcap_global_header_t), 1, filePointer);
