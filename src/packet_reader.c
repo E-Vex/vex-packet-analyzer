@@ -6,6 +6,8 @@
 #include "protocol_swap.h"
 #include "protocol_parser/protocol_parser.h"
 #include "packet_context.h"
+#include "file_io.h"
+#include "display.h"
 
 #define LINKTYPE_ETHERNET 1
 #define LINKTYPE_LINUX_SLL2 276
@@ -13,14 +15,14 @@
 #define LINKTYPE_LINUX_SLL 113
 #define LINKTYPE_NULL 0
 
-void read_packets(FILE *fp, uint32_t data_link_type, uint32_t magic_number)
+void read_packets(FILE *fp, uint32_t data_link_type, uint32_t magic_number, file_info_t *file_info)
 {
     pcap_packet_header_t packet_header;
     packet_context_t ctx;
 
     unsigned int packet_counter = 0;
 
-    while (packet_counter < 3 && fread(&packet_header, sizeof(pcap_packet_header_t), 1, fp) == 1)
+    while (packet_counter < file_info->packets_to_read && fread(&packet_header, sizeof(pcap_packet_header_t), 1, fp) == 1)
     {
         ctx.remaining_payload = 0;
         ctx.fp = fp;
@@ -61,8 +63,8 @@ void read_packets(FILE *fp, uint32_t data_link_type, uint32_t magic_number)
                 }
             }
 
-            long pos = ftell(fp);
-            printf("\n------>Position in file = %ld\n\n", pos);
+            // long pos = ftell(fp);
+            // printf("\n------>Position in file = %ld\n\n", pos);
 
             // fseek(fp, remaining_payload, SEEK_CUR);
             break;
@@ -73,5 +75,7 @@ void read_packets(FILE *fp, uint32_t data_link_type, uint32_t magic_number)
             break;
         }
         /* parse_data_link_layer.c*/
+        print_packet_read_count(&packet_counter);
     }
+    printf("\n");
 }

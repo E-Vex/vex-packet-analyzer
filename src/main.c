@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
 
     printf("\n--------------------------------\n\n");
 
-    read_packets(filePointer, global_header.network, global_header.magic_number);
+    read_packets(filePointer, global_header.network, global_header.magic_number, &file_info);
 
     fclose(filePointer);
     return 0;

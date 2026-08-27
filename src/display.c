@@ -144,3 +144,8 @@ int print_payload(FILE *fp, size_t remaining_payload)
 
     return 0;
 }
+void print_packet_read_count(int *packet_counter)
+{
+    printf("\r\33[2Kpackets read: %d", *packet_counter);
+    fflush(stdout);
+}

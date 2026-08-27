@@ -4,6 +4,7 @@
 typedef struct
 {
     char *path;
+    int packets_to_read;
 } file_info_t;
 
 #endif
