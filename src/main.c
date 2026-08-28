@@ -48,8 +48,6 @@ int main(int argc, char *argv[])
         swap_global_header(&global_header);
     }
 
-    printf("\n--------------------------------\n\n");
-
     read_packets(filePointer, global_header.network, global_header.magic_number, &file_info);
 
     fclose(filePointer);
