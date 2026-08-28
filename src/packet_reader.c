@@ -21,8 +21,9 @@ void read_packets(FILE *fp, uint32_t data_link_type, uint32_t magic_number, file
     packet_context_t ctx;
 
     unsigned int packet_counter = 0;
+    int limit = file_info->packets_to_read;
 
-    while (packet_counter < file_info->packets_to_read && fread(&packet_header, sizeof(pcap_packet_header_t), 1, fp) == 1)
+    while ((limit < 0 || packet_counter < (unsigned int)limit) && fread(&packet_header, sizeof(pcap_packet_header_t), 1, fp) == 1)
     {
         ctx.remaining_payload = 0;
         ctx.fp = fp;
