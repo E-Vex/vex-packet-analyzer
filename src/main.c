@@ -9,16 +9,6 @@
 #include "cli/cli.h"
 #include "file_info.h"
 
-/*--------------------------Functions-------------------------------*/
-void check_file_pointer(FILE *fp)
-{
-    if (fp == NULL)
-    {
-        printf("Error: failed to open the file\n");
-        exit(1);
-    }
-}
-
 /*------------------------------------------------------------------*/
 
 int main(int argc, char *argv[])

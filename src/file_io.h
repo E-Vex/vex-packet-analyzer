@@ -12,6 +12,7 @@ typedef struct
 
 FILE *import_binary_file(const char *filename);
 char *get_file_path(file_info_t *file_info);
+void check_file_pointer(FILE *fp);
 pcap_file_info_t validate_pcap_file(file_info_t *file_info);
 
 #endif

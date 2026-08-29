@@ -20,6 +20,15 @@ char *get_file_path(file_info_t *file_info)
     return file_info->path;
 }
 
+void check_file_pointer(FILE *fp)
+{
+    if (fp == NULL)
+    {
+        printf("Error: failed to open the file\n");
+        exit(1);
+    }
+}
+
 pcap_file_info_t validate_pcap_file(file_info_t *file_info)
 {
 
