@@ -1,6 +1,7 @@
 #ifndef PROTOCOLS_H
 #define PROTOCOLS_H
 
+/* Standard library */
 #include <stdint.h>
 
 #define PCAP_MAGIC_MICRO 0xa1b2c3d4

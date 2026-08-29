@@ -1,8 +1,11 @@
 #ifndef FILE_H
 #define FILE_H
 
-#include <stdio.h>
+/* Standard library */
 #include <stdbool.h>
+#include <stdio.h>
+
+/* Project headers */
 #include "file_info.h"
 
 typedef struct

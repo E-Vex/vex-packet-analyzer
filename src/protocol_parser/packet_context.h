@@ -1,9 +1,10 @@
 #ifndef PACKET_CONTEXT_H
 #define PACKET_CONTEXT_H
 
-#include <stdio.h>
-#include <stdint.h>
+/* Standard library */
 #include <stddef.h>
+#include <stdint.h>
+#include <stdio.h>
 
 typedef struct
 {

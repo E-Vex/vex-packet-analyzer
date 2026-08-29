@@ -1,6 +1,7 @@
 #ifndef CLI_H
 #define CLI_H
 
+/* Project headers */
 #include "../file_info.h"
 
 #define READ_ALL -1

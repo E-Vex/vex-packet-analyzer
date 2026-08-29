@@ -1,6 +1,9 @@
+/* Standard library */
 #include <stdio.h>
-#include "file_io.h"
+
+/* Project headers */
 #include "file_info.h"
+#include "file_io.h"
 #include "protocols.h"
 
 FILE *import_binary_file(const char *filename)

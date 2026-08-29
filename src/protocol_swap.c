@@ -1,8 +1,10 @@
-#include <stdio.h>
+/* Standard library */
 #include <stddef.h>
+#include <stdio.h>
+
+/* Project headers */
 #include "endian.h"
 #include "protocols.h"
-
 void swap_global_header(pcap_global_header_t *global_header)
 {
 

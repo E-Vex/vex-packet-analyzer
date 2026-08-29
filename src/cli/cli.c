@@ -1,8 +1,12 @@
+/* Standard library */
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
-#include <getopt.h>
 
+/* System / POSIX */
+#include <getopt.h>
+#include <unistd.h>
+
+/* Project headers */
 #include "../file_info.h"
 #include "cli.h"
 

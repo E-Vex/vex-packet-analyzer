@@ -1,8 +1,11 @@
 #ifndef PROTOCOL_SWAP_H
 #define PROTOCOL_SWAP_H
 
-#include <stdio.h>
+/* Standard library */
 #include <stddef.h>
+#include <stdio.h>
+
+/* Project headers */
 #include "endian.h"
 #include "protocols.h"
 

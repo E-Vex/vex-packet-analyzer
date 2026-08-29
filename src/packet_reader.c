@@ -1,13 +1,16 @@
-#include <stdio.h>
+/* Standard library */
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
+
+/* Project headers */
+#include "display.h"
 #include "endian.h"
+#include "file_io.h"
+#include "packet_context.h"
 #include "protocols.h"
 #include "protocol_swap.h"
 #include "protocol_parser/protocol_parser.h"
-#include "packet_context.h"
-#include "file_io.h"
-#include "display.h"
 
 #define LINKTYPE_ETHERNET 1
 #define LINKTYPE_LINUX_SLL2 276

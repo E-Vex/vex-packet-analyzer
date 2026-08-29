@@ -1,13 +1,18 @@
-#include <stdio.h>
-#include <stdint.h>
-#include <stdlib.h>
+/* Standard library */
 #include <stddef.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+/* System / POSIX */
 #include <arpa/inet.h>
-#include "file_io.h"
-#include "protocols.h"
-#include "packet_reader.h"
+
+/* Project headers */
 #include "cli/cli.h"
 #include "file_info.h"
+#include "file_io.h"
+#include "packet_reader.h"
+#include "protocols.h"
 
 /*------------------------------------------------------------------*/
 
