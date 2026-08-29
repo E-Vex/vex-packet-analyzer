@@ -34,6 +34,13 @@ int main(int argc, char *argv[])
         return 1;
     }
 
+    pcap_file_info_t file_status = validate_pcap_file(&file_info);
+    if (file_status.is_valid == false)
+    {
+        fprintf(stderr, "Error: Invalid or corrupted PCAP file header.\n");
+        return -1;
+    }
+
     FILE *filePointer = import_binary_file(file_info.path);
     check_file_pointer(filePointer);
 

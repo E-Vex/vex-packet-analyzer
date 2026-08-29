@@ -3,6 +3,9 @@
 
 #include <stdint.h>
 
+#define PCAP_MAGIC_MICRO 0xa1b2c3d4
+#define PCAP_SWAPPED_MAGIC_MICRO 0xd4c3b2a1
+
 /*--------------------------Structures-------------------------------*/
 /*-------------------------------------------------------------------*/
 typedef struct __attribute__((packed)) // Global Header

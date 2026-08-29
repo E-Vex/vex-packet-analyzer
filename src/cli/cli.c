@@ -52,6 +52,5 @@ int parse_cli(int argc, char *argv[], file_info_t *file_info)
         return -1;
     }
 
-    printf("file_path=%s\n", file_info->path);
     return 1;
 }
