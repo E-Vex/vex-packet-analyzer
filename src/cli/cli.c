@@ -21,11 +21,23 @@ int parse_cli(int argc, char *argv[], file_info_t *file_info)
         switch (opt)
         {
         case 'r':
+            if (file_info->path != NULL)
+            {
+                fprintf(stderr, "Error: Duplicate -r option\n");
+                return -1;
+            }
+
             file_info->path = optarg;
             break;
 
         case 'c':
         {
+            if (file_info->packets_to_read != READ_ALL)
+            {
+                fprintf(stderr, "Error: Duplicate -c option\n");
+                return -1;
+            }
+
             errno = 0;
 
             char *endptr;
