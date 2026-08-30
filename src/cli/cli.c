@@ -1,4 +1,5 @@
 /* Standard library */
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -28,7 +29,7 @@ int parse_cli(int argc, char *argv[], file_info_t *file_info)
             char *endptr;
             long count = strtol(optarg, &endptr, 10);
 
-            if (*endptr != '\0')
+            if (endptr == optarg || *endptr != '\0')
             {
                 printf("Error: Input contains non-numeric characters \n");
                 return -1;
