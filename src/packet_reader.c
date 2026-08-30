@@ -67,10 +67,6 @@ void read_packets(FILE *fp, uint32_t data_link_type, uint32_t magic_number, file
                 }
             }
 
-            // long pos = ftell(fp);
-            // printf("\n------>Position in file = %ld\n\n", pos);
-
-            // fseek(fp, remaining_payload, SEEK_CUR);
             break;
 
         default:
@@ -78,7 +74,6 @@ void read_packets(FILE *fp, uint32_t data_link_type, uint32_t magic_number, file
             fseek(fp, packet_header.incl_len, SEEK_CUR);
             break;
         }
-        /* parse_data_link_layer.c*/
         print_packet_read_count(&packet_counter);
     }
     printf("\n");
