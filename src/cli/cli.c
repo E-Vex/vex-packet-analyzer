@@ -33,20 +33,20 @@ int parse_cli(int argc, char *argv[], file_info_t *file_info)
 
             if (errno == ERANGE)
             {
-                printf("Error: out of range\n");
+                fprintf(stderr, "Error: out of range\n");
                 errno = 0;
                 return -1;
             }
 
             if (endptr == optarg || *endptr != '\0')
             {
-                printf("Error: Input contains non-numeric characters \n");
+                fprintf(stderr, "Error: Input contains non-numeric characters\n");
                 return -1;
             }
 
             if (count <= 0)
             {
-                printf("Invalid input: packet count must be a positive integer.\n");
+                fprintf(stderr, "Invalid input: packet count must be a positive integer\n");
                 return -1;
             }
 
