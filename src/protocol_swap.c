@@ -33,12 +33,14 @@ void swap_packet_header(pcap_packet_header_t *packet_header)
 }
 void swap_sll2_header(sll2_header_t *sll2_header)
 {
-    static const field_descriptor_t fields[2] =
+    static const field_descriptor_t fields[4] =
         {
             {offsetof(sll2_header_t, protocol_type), sizeof(sll2_header->protocol_type)},
-            {offsetof(sll2_header_t, skipped_data), sizeof(sll2_header->skipped_data)}}; /* Note: the construction of the SLL2 protocol fields must be completed instead of skip the data*/
+            {offsetof(sll2_header_t, reserved), sizeof(sll2_header->reserved)},
+            {offsetof(sll2_header_t, interface_index), sizeof(sll2_header->interface_index)},
+            {offsetof(sll2_header_t, arphrd_type), sizeof(sll2_header->arphrd_type)}};
 
-    swap_fields(sll2_header, fields, 2);
+    swap_fields(sll2_header, fields, 4);
 }
 void swap_ipv4_header(ipv4_header_t *ipv4_header)
 {

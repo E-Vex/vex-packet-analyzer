@@ -33,7 +33,13 @@ typedef struct __attribute__((packed)) // Packet Header
 typedef struct __attribute__((packed)) // SLL2 Header
 {
     uint16_t protocol_type;
-    uint8_t skipped_data[18];
+    uint16_t reserved;
+    uint32_t interface_index;
+    uint16_t arphrd_type;
+    uint8_t packet_type;
+    uint8_t address_length;
+    uint8_t link_layer_address[8];
+    // TODO : Add SLL2 metadata parsing.
 
 } sll2_header_t;
 typedef struct __attribute__((packed)) // SLL Header
