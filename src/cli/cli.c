@@ -24,14 +24,25 @@ int parse_cli(int argc, char *argv[], file_info_t *file_info)
             break;
 
         case 'c':
-            int count = atoi(optarg);
+        {
+            char *endptr;
+            long count = strtol(optarg, &endptr, 10);
+
+            if (*endptr != '\0')
+            {
+                printf("Error: Input contains non-numeric characters \n");
+                return -1;
+            }
+
             if (count <= 0)
             {
                 printf("Invalid input: packet count must be a positive integer.\n");
                 return -1;
             }
+
             file_info->packets_to_read = count;
-            break;
+        }
+        break;
 
         case 'h':
             printf("\n");
