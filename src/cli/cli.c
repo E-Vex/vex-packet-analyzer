@@ -16,7 +16,7 @@ int parse_cli(int argc, char *argv[], file_info_t *file_info)
     int opt;
     file_info->packets_to_read = READ_ALL; /* default: reading the entire file  */
 
-    while ((opt = getopt(argc, argv, "r:c:h")) != -1)
+    while ((opt = getopt(argc, argv, ":r:c:h")) != -1)
     {
         switch (opt)
         {
@@ -77,8 +77,15 @@ int parse_cli(int argc, char *argv[], file_info_t *file_info)
             return 0;
             break;
 
+        case ':':
+            fprintf(stderr, "vetrix: error: option -%c requires an argument\n", optopt);
+            return -1;
+            break;
+
+        case '?':
         default:
-            fprintf(stderr, "Unknown option\n Use -h for help.\n");
+            fprintf(stderr,
+                    "vetrix: error: unknown option '-%c'\n", optopt);
             return -1;
         }
     }
