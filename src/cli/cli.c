@@ -1,5 +1,5 @@
 /* Standard library */
-#include <limits.h>
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -26,8 +26,17 @@ int parse_cli(int argc, char *argv[], file_info_t *file_info)
 
         case 'c':
         {
+            errno = 0;
+
             char *endptr;
             long count = strtol(optarg, &endptr, 10);
+
+            if (errno == ERANGE)
+            {
+                printf("Error: out of range\n");
+                errno = 0;
+                return -1;
+            }
 
             if (endptr == optarg || *endptr != '\0')
             {
